@@ -273,7 +273,7 @@ async function fetchIndianChannels() {
 }
 
 /* ---------------- CARD RENDERING LOGIC ---------------- */
-function renderCards(targetId: string, data: any[], type: string) {
+function renderCards(targetId: string, data: any[], _type?: string) {
   const el = document.querySelector(`[data-scroll="${targetId}"]`);
   if (!el) return;
   
@@ -314,10 +314,10 @@ async function init() {
   
   if (allIndianChannels.length === 0) {
     allIndianChannels = [
-      { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-      { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-      { title: "Sony Max", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-      { title: "Star Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+      { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
+      { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
+      { title: "Sony Max", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
+      { title: "Star Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" }
     ];
   }
 
