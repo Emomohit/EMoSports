@@ -61,9 +61,9 @@ if (dropEl) {
 
 /* ---------------- HERO ROTATION ---------------- */
 const heroes = [
-  { title: "The Last Ember", eyebrow: "EmoSports Original · Fantasy", img: "https://picsum.photos/seed/ember1/1600/900", synopsis: "When the last flame-keeper of a dying kingdom goes missing, a reluctant smuggler must cross a war-torn coastline to find her — before the ember she carries goes out for good.", streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8" },
-  { title: "Crimson Tide City", eyebrow: "EmoSports Original · Crime Drama", img: "https://picsum.photos/seed/crimson2/1600/900", synopsis: "A dockside inspector uncovers a smuggling ring that reaches the top of the city's council — and into her own family.", streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8" },
-  { title: "Whispers of Malabar", eyebrow: "New Season · Drama", img: "https://picsum.photos/seed/malabar3/1600/900", synopsis: "Three generations of a spice-trading family navigate love, land disputes, and a coastline that keeps changing beneath their feet.", streamUrl: "https://m-ddsports.akamaized.net/hls/live/2018881/DDSports/master.m3u8" }
+  { title: "Aaj Tak Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png", synopsis: "Watch Aaj Tak Live 24x7 for the latest breaking news.", iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCt4t-jeY85JegMlZ-E5UWtA&autoplay=1" },
+  { title: "ABP News Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png", synopsis: "ABP News keeps you ahead with the latest news and updates.", iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCmphdqZNmqL72WJ2uyiNw5w&autoplay=1" },
+  { title: "NDTV India Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/NDTV_India_logo.svg/1200px-NDTV_India_logo.svg.png", synopsis: "Reliable and fast news updates from NDTV India.", iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCZFMm1mMw0F81Z37AAEzTWA&autoplay=1" }
 ];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
@@ -240,9 +240,10 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
     });
     
     // Server Error / Broken link fallback
-    hlsInstance.on(Hls.Events.ERROR, function (_: any, data: any) {
+    hlsInstance.on(Hls.Events.ERROR, function (_event: any, data: any) {
       if (data.fatal) {
-        alert("Server Error: This channel stream is currently down or geo-blocked. Please try another one.");
+        // Silently close the clip on fatal error, do not show irritating alert
+        console.warn('Stream failed or geo-blocked, closing player quietly.');
         closeClip();
       }
     });
@@ -266,30 +267,29 @@ function updateQuality(newQuality: number) {
 
 document.getElementById('playBtn')?.addEventListener('click', () => {
   const h = heroes[heroIdx];
-  playStream(h.title, h.streamUrl);
+  playStream(h.title, undefined, h.iframeSrc, h.img);
 });
 
 
 /* ---------------- BACKEND LOGIC: GUARANTEED INDIAN IPTV STREAMS ---------------- */
 async function fetchIndianChannels() {
   const ROBUST_CHANNELS = [
-    { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
-    { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png" },
-    { title: "India TV", tag: "Hindi · News", live: true, streamUrl: "https://liveapp.indiatvnews.com/indiatv/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/India_TV.svg/1200px-India_TV.svg.png" },
-    { title: "NDTV India", tag: "Hindi · News", live: true, streamUrl: "https://ndtvindia-lh.akamaihd.net/i/ndtvindia_1@317924/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/NDTV_India_logo.svg/1200px-NDTV_India_logo.svg.png" },
-    { title: "DD National", tag: "Hindi · Entertainment", live: true, streamUrl: "https://m-ddnational.akamaized.net/hls/live/2018880/DDNational/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/DD_National_logo.svg/1200px-DD_National_logo.svg.png" },
-    { title: "DD Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://m-ddsports.akamaized.net/hls/live/2018881/DDSports/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/DD_Sports.png/250px-DD_Sports.png" },
-    { title: "DD News", tag: "Hindi · News", live: true, streamUrl: "https://m-ddnews.akamaized.net/hls/live/2018898/DDNews/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/0/03/DD_News.png/250px-DD_News.png" },
-    { title: "Zee News", tag: "Hindi · News", live: true, streamUrl: "https://zeenews.akamaized.net/hls/live/2097991/zeenews/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Zee_News_logo.png/250px-Zee_News_logo.png" },
+    { title: "Aaj Tak", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCt4t-jeY85JegMlZ-E5UWtA&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
+    { title: "ABP News", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCmphdqZNmqL72WJ2uyiNw5w&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png" },
+    { title: "India TV", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCttspZesZIDEwwpVIgoZtWQ&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/India_TV.svg/1200px-India_TV.svg.png" },
+    { title: "NDTV India", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCZFMm1mMw0F81Z37AAEzTWA&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/NDTV_India_logo.svg/1200px-NDTV_India_logo.svg.png" },
+    { title: "Zee News", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UCGWH5H_wz8wB0B1uE8w7g0g&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Zee_News_logo.png/250px-Zee_News_logo.png" },
+    { title: "Republic Bharat", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UChB_y0a36h7RzWJ0X1-oQYQ&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Republic_Bharat_Logo.svg/1200px-Republic_Bharat_Logo.svg.png" },
+    { title: "News18 India", tag: "Hindi · News", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UC44h-k-lAymh4p6968-0gUA&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/2/23/News18_India_logo.svg/1200px-News18_India_logo.svg.png" },
     { title: "Red Bull TV", tag: "English · Action Sports", live: true, streamUrl: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/Red_Bull_TV_logo.svg/1200px-Red_Bull_TV_logo.svg.png" },
     { title: "NASA TV", tag: "English · Science", live: true, streamUrl: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg" },
-    { title: "B4U Movies", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/88/B4U_Movies_logo.png/220px-B4U_Movies_logo.png" },
-    { title: "Sony Max", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/Sony_Max_logo.png/220px-Sony_Max_logo.png" }
+    { title: "Saregama Music", tag: "Hindi · Music", live: true, iframeSrc: "https://www.youtube.com/embed/live_stream?channel=UC4w1zOEU5z6qJ5_F_oGg06A&autoplay=1", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/0/07/Saregama_India_Limited_Logo.svg/1200px-Saregama_India_Limited_Logo.svg.png" }
   ];
 
-  // Create a massive pool of guaranteed working channels for the UI
+  // We will duplicate this highly reliable array a few times to fill the UI
+  // But we will NOT shuffle them, so they stay constant across reloads!
   let indianChannels: any[] = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     indianChannels = indianChannels.concat(ROBUST_CHANNELS);
   }
   
@@ -337,37 +337,28 @@ async function init() {
   // Load dynamic Indian Backend data
   let allIndianChannels = await fetchIndianChannels();
 
-  // Helper to get random channels for rows
-  const getRandom = (arr: any[], n: number) => {
-    let result = new Array(n), len = arr.length, taken = new Array(len);
-    if (n > len) return arr;
-    while (n--) {
-      let x = Math.floor(Math.random() * len);
-      result[n] = arr[x in taken ? taken[x] : x];
-      taken[x] = --len in taken ? taken[len] : len;
-    }
-    return result;
+  // Helper to slice channels sequentially so they never shuffle on refresh
+  const getSequential = (arr: any[], start: number, count: number) => {
+    return arr.slice(start, start + count);
   };
 
-  // Populate UI Rows with real playable channels
-  renderCards('live-row', getRandom(allIndianChannels, 6), 'live');
-  renderCards('trending-row', getRandom(allIndianChannels, 6), 'trending');
-  renderCards('continue-row', getRandom(allIndianChannels, 4), 'continue');
+  // Populate UI Rows with real playable channels (static order, no shuffle)
+  renderCards('live-row', getSequential(allIndianChannels, 0, 8), 'live');
+  renderCards('trending-row', getSequential(allIndianChannels, 8, 8), 'trending');
+  renderCards('continue-row', getSequential(allIndianChannels, 16, 4), 'continue');
 
-  // Movies Page
-  const movieChannels = allIndianChannels.filter(c => c.tag.toLowerCase().includes('movie') || c.tag.toLowerCase().includes('entertainment'));
-  renderCards('movies-new', movieChannels.length > 0 ? movieChannels : getRandom(allIndianChannels, 5), 'trending');
-  renderCards('movies-action', getRandom(allIndianChannels, 4), 'trending');
-  renderCards('movies-romcom', getRandom(allIndianChannels, 4), 'trending');
+  // Movies Page (just take sequential chunks to avoid shuffle)
+  renderCards('movies-new', getSequential(allIndianChannels, 0, 5), 'trending');
+  renderCards('movies-action', getSequential(allIndianChannels, 5, 4), 'trending');
+  renderCards('movies-romcom', getSequential(allIndianChannels, 9, 4), 'trending');
 
   // TV Shows Page
-  renderCards('tv-binge', getRandom(allIndianChannels, 4), 'trending');
-  renderCards('tv-new', getRandom(allIndianChannels, 4), 'trending');
-  renderCards('tv-fan', getRandom(allIndianChannels, 4), 'trending');
+  renderCards('tv-binge', getSequential(allIndianChannels, 13, 4), 'trending');
+  renderCards('tv-new', getSequential(allIndianChannels, 17, 4), 'trending');
+  renderCards('tv-fan', getSequential(allIndianChannels, 21, 4), 'trending');
 
   // Sports Page
-  const sportsChannels = allIndianChannels.filter(c => c.tag.toLowerCase().includes('sport'));
-  renderCards('sports-highlights', sportsChannels.length > 0 ? sportsChannels : getRandom(allIndianChannels, 4), 'trending');
+  renderCards('sports-highlights', getSequential(allIndianChannels, 25, 4), 'trending');
 
   // Originals - EmoLearners Instagram Embeds
   const emolearnersOriginals = [
@@ -378,7 +369,7 @@ async function init() {
   
   renderCards('originals-row', emolearnersOriginals, 'originals');
   renderCards('originals-full', emolearnersOriginals, 'originals');
-  renderCards('originals-soon', getRandom(allIndianChannels, 3), 'trending');
+  renderCards('originals-soon', getSequential(allIndianChannels, 0, 3), 'trending');
 }
 
 init();
