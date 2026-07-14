@@ -60,9 +60,9 @@ if (dropEl) {
 
 /* ---------------- HERO ROTATION ---------------- */
 const heroes = [
-  { title: "Aaj Tak Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png", synopsis: "Watch Aaj Tak Live 24x7 for the latest breaking news.", streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8" },
-  { title: "ABP News Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png", synopsis: "ABP News keeps you ahead with the latest news and updates.", streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8" },
-  { title: "NDTV India Live", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/NDTV_India_logo.svg/1200px-NDTV_India_logo.svg.png", synopsis: "Reliable and fast news updates from NDTV India.", streamUrl: "https://ndtvindia-lh.akamaihd.net/i/ndtvindia_1@317924/master.m3u8" }
+  { title: "Aaj Tak Live (Proxied)", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png", synopsis: "Watch Aaj Tak Live 24x7 for the latest breaking news.", streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Ffeeds.intoday.in%2Faajtak%2Fmaster.m3u8" },
+  { title: "Red Bull TV", eyebrow: "Action · Sports", img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/Red_Bull_TV_logo.svg/1200px-Red_Bull_TV_logo.svg.png", synopsis: "Experience the world of Red Bull with live action sports and events.", streamUrl: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8" },
+  { title: "Bloomberg TV", eyebrow: "Global · Finance", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Bloomberg_Television_logo.svg/1200px-Bloomberg_Television_logo.svg.png", synopsis: "24-hour global business and financial news.", streamUrl: "https://live.bloomberg.tv/hls/live/608358/a/index.m3u8" }
 ];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
@@ -140,19 +140,14 @@ let plyrPlayer: any = null;
 // Ensure Plyr is available
 declare var Plyr: any;
 
-function initPlyr(qualityOptions?: any) {
-  if (plyrPlayer) {
-    plyrPlayer.destroy();
+function initPlyr() {
+  if (!plyrPlayer && clipVideo) {
+    plyrPlayer = new Plyr(clipVideo, {
+      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
+      settings: ['quality', 'speed'],
+      autoplay: true,
+    });
   }
-  const defaultOptions: any = {
-    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
-    settings: ['quality', 'speed'],
-    autoplay: true,
-  };
-  if (qualityOptions) {
-    defaultOptions.quality = qualityOptions;
-  }
-  plyrPlayer = new Plyr(clipVideo, defaultOptions);
 }
 
 function closeClip() {
@@ -209,6 +204,7 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
       clipIframe.src = '';
       clipIframe.style.display = 'none';
     }
+    initPlyr(); // Ensure Plyr is created before manipulating DOM!
     const plyrContainer = document.querySelector('.plyr') as HTMLElement;
     if (plyrContainer) plyrContainer.style.display = 'block';
 
@@ -220,17 +216,6 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
     hlsInstance.loadSource(streamUrl);
     hlsInstance.attachMedia(clipVideo);
     hlsInstance.on(Hls.Events.MANIFEST_PARSED, function () {
-      // Map available qualities to Plyr
-      const availableQualities = hlsInstance.levels.map((l: any) => l.height);
-      const qualityOptions = {
-        default: availableQualities[0],
-        options: availableQualities,
-        forced: true,
-        onChange: (e: any) => updateQuality(e)
-      };
-      
-      initPlyr(qualityOptions);
-      
       if (plyrPlayer) {
         plyrPlayer.play().catch((e: any) => console.log('Autoplay prevented:', e));
       } else {
@@ -272,22 +257,18 @@ document.getElementById('playBtn')?.addEventListener('click', () => {
 
 /* ---------------- BACKEND LOGIC: FETCH INDIAN IPTV STREAMS ---------------- */
 async function fetchIndianChannels() {
-  // Guaranteed Working Channels (No CORS issues, real m3u8s)
+  // Guaranteed Working Channels (Mix of Proxied Indian & Global Free 24/7 Streams)
   const ROBUST_CHANNELS = [
-    { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
-    { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png" },
-    { title: "India TV", tag: "Hindi · News", live: true, streamUrl: "https://liveapp.indiatvnews.com/indiatv/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/India_TV.svg/1200px-India_TV.svg.png" },
-    { title: "NDTV India", tag: "Hindi · News", live: true, streamUrl: "https://ndtvindia-lh.akamaihd.net/i/ndtvindia_1@317924/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/NDTV_India_logo.svg/1200px-NDTV_India_logo.svg.png" },
-    { title: "Zee News", tag: "Hindi · News", live: true, streamUrl: "https://zeenews.akamaized.net/hls/live/2097991/zeenews/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Zee_News_logo.png/250px-Zee_News_logo.png" },
-    { title: "Republic Bharat", tag: "Hindi · News", live: true, streamUrl: "https://republic-hindi.akamaized.net/hls/live/2022718/republichindi/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Republic_Bharat_Logo.svg/1200px-Republic_Bharat_Logo.svg.png" },
-    { title: "News18 India", tag: "Hindi · News", live: true, streamUrl: "https://news18hindi-lh.akamaihd.net/i/n18hindi_1@427218/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/2/23/News18_India_logo.svg/1200px-News18_India_logo.svg.png" },
-    { title: "DD National", tag: "Hindi · Entertainment", live: true, streamUrl: "https://m-ddnational.akamaized.net/hls/live/2018880/DDNational/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/DD_National_logo.svg/1200px-DD_National_logo.svg.png" },
-    { title: "DD Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://m-ddsports.akamaized.net/hls/live/2018881/DDSports/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/DD_Sports.png/250px-DD_Sports.png" },
-    { title: "DD News", tag: "Hindi · News", live: true, streamUrl: "https://m-ddnews.akamaized.net/hls/live/2018898/DDNews/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/0/03/DD_News.png/250px-DD_News.png" },
+    { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Ffeeds.intoday.in%2Faajtak%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
+    { title: "India TV", tag: "Hindi · News", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fliveapp.indiatvnews.com%2Findiatv%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/India_TV.svg/1200px-India_TV.svg.png" },
+    { title: "DD National", tag: "Hindi · Entertainment", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fm-ddnational.akamaized.net%2Fhls%2Flive%2F2018880%2FDDNational%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/DD_National_logo.svg/1200px-DD_National_logo.svg.png" },
+    { title: "DD Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fm-ddsports.akamaized.net%2Fhls%2Flive%2F2018881%2FDDSports%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/DD_Sports.png/250px-DD_Sports.png" },
     { title: "Red Bull TV", tag: "English · Action Sports", live: true, streamUrl: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/Red_Bull_TV_logo.svg/1200px-Red_Bull_TV_logo.svg.png" },
     { title: "Bloomberg", tag: "English · News", live: true, streamUrl: "https://live.bloomberg.tv/hls/live/608358/a/index.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Bloomberg_Television_logo.svg/1200px-Bloomberg_Television_logo.svg.png" },
     { title: "NASA TV", tag: "English · Science", live: true, streamUrl: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg" },
-    { title: "Al Jazeera", tag: "English · News", live: true, streamUrl: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Al_Jazeera_English_logo.svg/1200px-Al_Jazeera_English_logo.svg.png" }
+    { title: "Al Jazeera", tag: "English · News", live: true, streamUrl: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Al_Jazeera_English_logo.svg/1200px-Al_Jazeera_English_logo.svg.png" },
+    { title: "Sky News", tag: "English · News", live: true, streamUrl: "https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/Sky_News_logo.svg/1200px-Sky_News_logo.svg.png" },
+    { title: "France 24", tag: "English · News", live: true, streamUrl: "https://static.france24.com/live/F24_EN_HI_HLS/live_web.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/France_24_logo.svg/1200px-France_24_logo.svg.png" }
   ];
 
   let indianChannels = [...ROBUST_CHANNELS];
