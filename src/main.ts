@@ -162,6 +162,11 @@ function closeClip() {
     clipVideo.style.display = 'none';
   }
   if (clipImg) clipImg.style.display = 'block';
+  const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
+  if (clipIframe) {
+    clipIframe.src = '';
+    clipIframe.style.display = 'none';
+  }
   if (hlsInstance) {
     hlsInstance.destroy();
     hlsInstance = null;
@@ -171,14 +176,31 @@ function closeClip() {
 document.getElementById('clipClose')?.addEventListener('click', closeClip);
 
 // Generic function to play a stream
-function playStream(title: string, streamUrl: string) {
-  if (!clipViewer || !clipVideo) return;
+function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
+  if (!clipViewer) return;
   clipViewer.classList.remove('hidden');
   if (clipName) clipName.textContent = title;
   
-  // Hide image, show video
-  if (clipImg) clipImg.style.display = 'none';
-  clipVideo.style.display = 'block';
+  const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
+
+  if (iframeSrc) {
+    if (clipImg) clipImg.style.display = 'none';
+    if (clipVideo) {
+      clipVideo.pause();
+      clipVideo.style.display = 'none';
+    }
+    if (clipIframe) {
+      clipIframe.src = iframeSrc;
+      clipIframe.style.display = 'block';
+    }
+  } else if (streamUrl && clipVideo) {
+    if (clipImg) clipImg.style.display = 'none';
+    if (clipIframe) {
+      clipIframe.src = '';
+      clipIframe.style.display = 'none';
+    }
+    clipVideo.style.display = 'block';
+    clipVideo.volume = 1.0; // Ensure sound is enabled
 
   if (Hls.isSupported()) {
     if (hlsInstance) {
@@ -240,7 +262,7 @@ async function fetchIndianChannels() {
           });
         }
       }
-      if (indianChannels.length >= 20) break; // Limit to 20 for UI presentation
+      if (indianChannels.length >= 100) break; // Limit to 100 for UI presentation
     }
     return indianChannels;
   } catch (error) {
@@ -255,22 +277,16 @@ function renderCards(targetId: string, data: any[], type: string) {
   if (!el) return;
   
   el.innerHTML = data.map((d, i) => {
-    // If we have dynamic stream data, we encode it as a data attribute to click and play
-    const streamAttr = d.streamUrl ? `data-stream="${d.streamUrl}" data-title="${d.title}"` : '';
+    const streamAttr = d.streamUrl ? `data-stream="${d.streamUrl}"` : '';
+    const iframeAttr = d.iframeSrc ? `data-iframe="${d.iframeSrc}"` : '';
+    const clickAttrs = `${streamAttr} ${iframeAttr} data-title="${d.title}"`;
     const imgUrl = d.imgSrc || `https://picsum.photos/seed/${d.img || (d.title.replace(/\s+/g,'').toLowerCase() + i)}/440/248`;
     const tag = d.tag || '';
 
-    if (type === 'live') {
-      return `<div class="card live-card-playable" ${streamAttr}>
-        <div class="card-edge"></div>
-        ${d.live ? `<div class="live-badge"><span class="pulse-dot"></span>LIVE</div>` : ''}
-        <img class="card-img" loading="lazy" src="${imgUrl}" alt="">
-        <div class="card-info"><div class="card-title">${d.title}</div><div class="card-tags mono">${tag}</div></div>
-      </div>`;
-    }
-    // Fallback static rows
-    return `<div class="card">
+    // All cards are now clickable
+    return `<div class="card live-card-playable" ${clickAttrs}>
       <div class="card-edge"></div>
+      ${d.live ? `<div class="live-badge"><span class="pulse-dot"></span>LIVE</div>` : ''}
       <img class="card-img" loading="lazy" src="${imgUrl}" alt="">
       <div class="card-info"><div class="card-title">${d.title}</div><div class="card-tags mono">${tag}</div></div>
     </div>`;
@@ -283,38 +299,69 @@ document.body.addEventListener('click', (e) => {
   const card = target.closest('.live-card-playable') as HTMLElement;
   if (!card) return;
   const streamUrl = card.dataset.stream;
+  const iframeSrc = card.dataset.iframe;
   const title = card.dataset.title;
-  if (streamUrl && title) {
-    playStream(title, streamUrl);
+  if (title && (streamUrl || iframeSrc)) {
+    playStream(title, streamUrl, iframeSrc);
   }
 });
 
 /* ---------------- INITIALIZE DATA ---------------- */
 async function init() {
   // Load dynamic Indian Backend data
-  const liveIndianChannels = await fetchIndianChannels();
-  if (liveIndianChannels.length > 0) {
-    renderCards('live-row', liveIndianChannels, 'live');
-  } else {
-    // Fallback if API fails
-    renderCards('live-row', [
-      { title: "Aaj Tak", tag: "LIVE · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-      { title: "ABP News", tag: "LIVE · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
-    ], 'live');
+  let allIndianChannels = await fetchIndianChannels();
+  
+  if (allIndianChannels.length === 0) {
+    allIndianChannels = [
+      { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+      { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+      { title: "Sony Max", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
+      { title: "Star Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+    ];
   }
 
-  // Populate static rows with UI mockup data
-  renderCards('continue-row', [
-    { title:"Circuit Breakers", tag:"S2 E4 · 22m left", img:"cb1", progress:64 },
-    { title:"Ranthambore Diaries", tag:"E3 · 8m left", img:"rd1", progress:88 },
-    { title:"The Last Ember", tag:"S1 E7 · 40m left", img:"ember4", progress:30 },
-  ], 'continue');
+  // Helper to get random channels for rows
+  const getRandom = (arr: any[], n: number) => {
+    let result = new Array(n), len = arr.length, taken = new Array(len);
+    if (n > len) return arr;
+    while (n--) {
+      let x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
+      taken[x] = --len in taken ? taken[len] : len;
+    }
+    return result;
+  };
+
+  // Populate UI Rows with real playable channels
+  renderCards('live-row', getRandom(allIndianChannels, 6), 'live');
+  renderCards('trending-row', getRandom(allIndianChannels, 6), 'trending');
+  renderCards('continue-row', getRandom(allIndianChannels, 4), 'continue');
+
+  // Movies Page
+  const movieChannels = allIndianChannels.filter(c => c.tag.toLowerCase().includes('movie') || c.tag.toLowerCase().includes('entertainment'));
+  renderCards('movies-new', movieChannels.length > 0 ? movieChannels : getRandom(allIndianChannels, 5), 'trending');
+  renderCards('movies-action', getRandom(allIndianChannels, 4), 'trending');
+  renderCards('movies-romcom', getRandom(allIndianChannels, 4), 'trending');
+
+  // TV Shows Page
+  renderCards('tv-binge', getRandom(allIndianChannels, 4), 'trending');
+  renderCards('tv-new', getRandom(allIndianChannels, 4), 'trending');
+  renderCards('tv-fan', getRandom(allIndianChannels, 4), 'trending');
+
+  // Sports Page
+  const sportsChannels = allIndianChannels.filter(c => c.tag.toLowerCase().includes('sport'));
+  renderCards('sports-highlights', sportsChannels.length > 0 ? sportsChannels : getRandom(allIndianChannels, 4), 'trending');
+
+  // Originals - EmoLearners Instagram Embeds
+  const emolearnersOriginals = [
+    { title: "EmoLearners - Web Dev", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/CrLd5r9I014/embed", imgSrc: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80" },
+    { title: "EmoLearners - JavaScript", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/Cp0cR6rI7lq/embed", imgSrc: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80" },
+    { title: "EmoLearners - Tech Hacks", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/Co8R6bZIu3a/embed", imgSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80" }
+  ];
   
-  renderCards('trending-row', [
-    { title:"Circuit Breakers", tag:"Thriller · 2026" },
-    { title:"The Last Ember", tag:"Fantasy · 2026" },
-    { title:"Crimson Tide City", tag:"Crime · 2025" },
-  ], 'trending');
+  renderCards('originals-row', emolearnersOriginals, 'originals');
+  renderCards('originals-full', emolearnersOriginals, 'originals');
+  renderCards('originals-soon', getRandom(allIndianChannels, 3), 'trending');
 }
 
 init();
