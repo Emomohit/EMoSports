@@ -34,3 +34,7 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 ## Features
 - Premium Dark Theme
 - Glassmorphism UI
+
+## Setup
+1. npm install
+2. npm run dev
