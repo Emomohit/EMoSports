@@ -6,8 +6,11 @@
 <title>EmoSports — Feel every match, every story</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 <!-- Import HLS.js for video streaming -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<!-- Import Plyr for premium video controls -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 </head>
 <body>
 
@@ -29,8 +32,6 @@
     <div class="avatar-ring"><div class="avatar" title="Mohit">M</div></div>
   </div>
 </nav>
-
-<div class="stories-bar" id="storiesBar"></div>
 
 <!-- ================= HOME PAGE ================= -->
 <div class="page" id="page-home">
@@ -169,10 +170,10 @@
 <div class="clip-viewer hidden" id="clipViewer">
   <div class="clip-card" style="display:flex; flex-direction:column;">
     <div class="clip-segments" id="clipSegments"></div>
-    <div class="clip-head"><img class="mini" id="clipMini" src=""><span id="clipName"></span></div>
+    <div class="clip-head"><img class="mini" id="clipMini" src="" onerror="this.style.display='none'"><span id="clipName"></span></div>
     <button class="clip-close" id="clipClose">✕</button>
     <div id="videoContainer" style="flex:1; width:100%; display:flex; align-items:center; justify-content:center; background:#000;">
-       <video id="clipVideo" controls autoplay style="width:100%; max-height:100%; display:none;"></video>
+       <video id="clipVideo" playsinline controls style="width:100%; height:100%; display:none;"></video>
        <iframe id="clipIframe" style="width:100%; height:100%; border:none; display:none;" allowfullscreen></iframe>
        <img id="clipImg" src="" alt="" style="width:100%; height:100%; object-fit:cover;">
     </div>

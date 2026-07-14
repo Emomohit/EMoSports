@@ -127,24 +127,7 @@ if (reactionBar) {
   });
 }
 
-/* ---------------- STORIES BAR ---------------- */
-const stories = [
-  { name: "Match Point", img: "story1", caption: "IND edge it in the final over 🔥" },
-  { name: "Circuit Breakers", img: "story2", caption: "That finale twist though 💀" },
-  { name: "Whispers", img: "story3", caption: "New season teaser is out now" },
-  { name: "Kabaddi Live", img: "story4", caption: "Raid of the season, no cap" },
-  { name: "Comedy Curfew", img: "story5", caption: "This scene broke the internet 😭" },
-  { name: "Ranthambore", img: "story6", caption: "Wait for the tiger cub moment" },
-];
-const storiesBar = document.getElementById('storiesBar');
-if (storiesBar) {
-  storiesBar.innerHTML = stories.map((s, i) => `
-    <div class="story" data-i="${i}">
-      <div class="story-ring"><img class="story-img" loading="lazy" src="https://picsum.photos/seed/${s.img}/120/120"></div>
-      <div class="story-label">${s.name}</div>
-    </div>
-  `).join('');
-}
+// Stories logic removed.
 
 
 /* ---------------- VIDEO PLAYER / CLIP VIEWER OVERLAY ---------------- */
@@ -153,11 +136,25 @@ const clipImg = document.getElementById('clipImg') as HTMLImageElement;
 const clipVideo = document.getElementById('clipVideo') as HTMLVideoElement;
 const clipName = document.getElementById('clipName');
 let hlsInstance: any = null;
+let plyrPlayer: any = null;
+
+// Ensure Plyr is available
+declare var Plyr: any;
+
+function initPlyr() {
+  if (!plyrPlayer && clipVideo) {
+    plyrPlayer = new Plyr(clipVideo, {
+      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
+      settings: ['quality', 'speed'],
+    });
+  }
+}
 
 function closeClip() {
   if (clipViewer) clipViewer.classList.add('hidden');
   if (clipVideo) {
-    clipVideo.pause();
+    if (plyrPlayer) plyrPlayer.stop();
+    else clipVideo.pause();
     clipVideo.src = '';
     clipVideo.style.display = 'none';
   }
@@ -176,12 +173,21 @@ function closeClip() {
 document.getElementById('clipClose')?.addEventListener('click', closeClip);
 
 // Generic function to play a stream
-function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
+function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSrc?: string) {
   if (!clipViewer) return;
   clipViewer.classList.remove('hidden');
   if (clipName) clipName.textContent = title;
+  const clipMini = document.getElementById('clipMini') as HTMLImageElement;
+  if (clipMini && imgSrc) {
+    clipMini.src = imgSrc;
+    clipMini.style.display = 'block';
+  } else if (clipMini) {
+    clipMini.style.display = 'none';
+  }
   
   const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
+
+  initPlyr();
 
   if (iframeSrc) {
     if (clipImg) clipImg.style.display = 'none';
@@ -200,7 +206,6 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
       clipIframe.style.display = 'none';
     }
     clipVideo.style.display = 'block';
-    clipVideo.volume = 1.0; // Ensure sound is enabled
 
   if (Hls.isSupported()) {
     if (hlsInstance) {
@@ -209,8 +214,26 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
     hlsInstance = new Hls();
     hlsInstance.loadSource(streamUrl);
     hlsInstance.attachMedia(clipVideo);
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function () {
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function (_event: any, _data: any) {
+      if (plyrPlayer) {
+        // Map available qualities to Plyr
+        const availableQualities = hlsInstance.levels.map((l: any) => l.height)
+        plyrPlayer.options.quality = {
+          default: availableQualities[0],
+          options: availableQualities,
+          forced: true,
+          onChange: (e: any) => updateQuality(e)
+        };
+      }
       clipVideo.play().catch(e => console.log('Autoplay prevented:', e));
+    });
+    
+    // Server Error / Broken link fallback
+    hlsInstance.on(Hls.Events.ERROR, function (_: any, data: any) {
+      if (data.fatal) {
+        alert("Server Error: This channel stream is currently down or geo-blocked. Please try another one.");
+        closeClip();
+      }
     });
   } else if (clipVideo.canPlayType('application/vnd.apple.mpegurl')) {
     clipVideo.src = streamUrl;
@@ -219,6 +242,15 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
     });
   }
 }
+}
+
+// Function to handle quality switch from Plyr to Hls.js
+function updateQuality(newQuality: number) {
+  if (hlsInstance) {
+    hlsInstance.levels.forEach((level: any, levelIndex: number) => {
+      if (level.height === newQuality) hlsInstance.currentLevel = levelIndex;
+    });
+  }
 }
 
 document.getElementById('playBtn')?.addEventListener('click', () => {
@@ -280,15 +312,15 @@ function renderCards(targetId: string, data: any[], _type?: string) {
   el.innerHTML = data.map((d, i) => {
     const streamAttr = d.streamUrl ? `data-stream="${d.streamUrl}"` : '';
     const iframeAttr = d.iframeSrc ? `data-iframe="${d.iframeSrc}"` : '';
-    const clickAttrs = `${streamAttr} ${iframeAttr} data-title="${d.title}"`;
     const imgUrl = d.imgSrc || `https://picsum.photos/seed/${d.img || (d.title.replace(/\s+/g,'').toLowerCase() + i)}/440/248`;
+    const clickAttrs = `${streamAttr} ${iframeAttr} data-title="${d.title}" data-img="${imgUrl}"`;
     const tag = d.tag || '';
 
-    // All cards are now clickable
+    // All cards are now clickable with fallback image handler
     return `<div class="card live-card-playable" ${clickAttrs}>
       <div class="card-edge"></div>
       ${d.live ? `<div class="live-badge"><span class="pulse-dot"></span>LIVE</div>` : ''}
-      <img class="card-img" loading="lazy" src="${imgUrl}" alt="">
+      <img class="card-img" loading="lazy" src="${imgUrl}" onerror="this.src='https://ui-avatars.com/api/?name=${d.title.charAt(0)}&background=131a2e&color=2fe6c4&size=440'" alt="">
       <div class="card-info"><div class="card-title">${d.title}</div><div class="card-tags mono">${tag}</div></div>
     </div>`;
   }).join('');
@@ -302,8 +334,9 @@ document.body.addEventListener('click', (e) => {
   const streamUrl = card.dataset.stream;
   const iframeSrc = card.dataset.iframe;
   const title = card.dataset.title;
+  const imgSrc = card.dataset.img;
   if (title && (streamUrl || iframeSrc)) {
-    playStream(title, streamUrl, iframeSrc);
+    playStream(title, streamUrl, iframeSrc, imgSrc);
   }
 });
 
