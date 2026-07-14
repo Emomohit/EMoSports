@@ -240,15 +240,6 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
 }
 }
 
-// Function to handle quality switch from Plyr to Hls.js
-function updateQuality(newQuality: number) {
-  if (hlsInstance) {
-    hlsInstance.levels.forEach((level: any, levelIndex: number) => {
-      if (level.height === newQuality) hlsInstance.currentLevel = levelIndex;
-    });
-  }
-}
-
 document.getElementById('playBtn')?.addEventListener('click', () => {
   const h = heroes[heroIdx];
   playStream(h.title, h.streamUrl, undefined, h.img);
