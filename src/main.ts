@@ -1,4 +1,3 @@
-import './style.css';
 
 // Declare Hls globally to make TypeScript happy since we loaded it via CDN script
 declare var Hls: any;
