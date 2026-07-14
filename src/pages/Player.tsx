@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Hls from 'hls.js';
-import { getStreamById } from '../api/mockData';
+import { getLiveStreamById, type LiveStream } from '../api/liveData';
 import { ArrowLeft } from 'lucide-react';
 import './Player.css';
 
@@ -9,15 +9,27 @@ export default function Player() {
   const { id } = useParams();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [content, setContent] = useState<LiveStream | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const content = id ? getStreamById(id) : null;
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!content) {
-      setError('Content not found!');
-      return;
-    }
+    const loadContent = async () => {
+      if (!id) return;
+      setLoading(true);
+      const stream = await getLiveStreamById(id);
+      if (stream) {
+        setContent(stream);
+      } else {
+        setError('Channel stream not found or is currently offline.');
+      }
+      setLoading(false);
+    };
+    loadContent();
+  }, [id]);
+
+  useEffect(() => {
+    if (!content) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -36,7 +48,7 @@ export default function Player() {
 
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (data.fatal) {
-          setError('Failed to load the stream. Please try again later.');
+          setError('Failed to connect to the live stream. The server might be down.');
         }
       });
 
@@ -51,6 +63,14 @@ export default function Player() {
       });
     }
   }, [content]);
+
+  if (loading) {
+    return (
+      <div className="player-error">
+        <h2>Connecting to live broadcast...</h2>
+      </div>
+    );
+  }
 
   if (error) {
     return (
