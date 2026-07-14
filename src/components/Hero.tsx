@@ -1,4 +1,5 @@
 import { Play, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './Hero.css';
 
 export default function Hero() {
@@ -24,10 +25,10 @@ export default function Hero() {
         </p>
         
         <div className="hero-actions">
-          <button className="btn-primary">
+          <Link to="/watch/hl1" className="btn-primary">
             <Play size={20} fill="currentColor" />
             <span>Watch Now</span>
-          </button>
+          </Link>
           <button className="btn-secondary glass">
             <Plus size={20} />
             <span>Watchlist</span>

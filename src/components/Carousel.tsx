@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import './Carousel.css';
 
 interface CarouselItem {
@@ -35,12 +36,12 @@ export default function Carousel({ title, items }: CarouselProps) {
         
         <div className="carousel-track" ref={scrollRef}>
           {items.map((item) => (
-            <div key={item.id} className={`carousel-card ${item.type || 'highlight'}`}>
+            <Link to={`/watch/${item.id}`} key={item.id} className={`carousel-card ${item.type || 'highlight'}`}>
               <img src={item.image} alt={item.title} loading="lazy" />
               <div className="card-overlay">
                 <span className="card-title">{item.title}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
