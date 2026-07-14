@@ -1,15 +1,16 @@
 import { Home, Tv, Trophy, Film, Search, User, Compass } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
 export default function Sidebar() {
   const navItems = [
-    { icon: <User size={24} />, label: 'My Space', path: '#' },
-    { icon: <Search size={24} />, label: 'Search', path: '#' },
-    { icon: <Home size={24} />, label: 'Home', path: '#', active: true },
-    { icon: <Tv size={24} />, label: 'Live TV', path: '#' },
-    { icon: <Trophy size={24} />, label: 'Sports', path: '#' },
-    { icon: <Film size={24} />, label: 'Movies', path: '#' },
-    { icon: <Compass size={24} />, label: 'Explore', path: '#' },
+    { icon: <User size={24} />, label: 'My Space', path: '/myspace' },
+    { icon: <Search size={24} />, label: 'Search', path: '/search' },
+    { icon: <Home size={24} />, label: 'Home', path: '/' },
+    { icon: <Tv size={24} />, label: 'Live TV', path: '/livetv' },
+    { icon: <Trophy size={24} />, label: 'Sports', path: '/sports' },
+    { icon: <Film size={24} />, label: 'Movies', path: '/movies' },
+    { icon: <Compass size={24} />, label: 'Explore', path: '/explore' },
   ];
 
   return (
@@ -19,14 +20,14 @@ export default function Sidebar() {
       </div>
       <nav className="sidebar-nav">
         {navItems.map((item, index) => (
-          <a
+          <NavLink
             key={index}
-            href={item.path}
-            className={`nav-item ${item.active ? 'active' : ''}`}
+            to={item.path}
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
             <div className="nav-icon">{item.icon}</div>
             <span className="nav-label">{item.label}</span>
-          </a>
+          </NavLink>
         ))}
       </nav>
       <div className="sidebar-bottom">
