@@ -61,9 +61,9 @@ if (dropEl) {
 
 /* ---------------- HERO ROTATION ---------------- */
 const heroes = [
-  { title: "The Last Ember", eyebrow: "EmoSports Original · Fantasy", img: "https://picsum.photos/seed/ember1/1600/900", synopsis: "When the last flame-keeper of a dying kingdom goes missing, a reluctant smuggler must cross a war-torn coastline to find her — before the ember she carries goes out for good.", streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-  { title: "Crimson Tide City", eyebrow: "EmoSports Original · Crime Drama", img: "https://picsum.photos/seed/crimson2/1600/900", synopsis: "A dockside inspector uncovers a smuggling ring that reaches the top of the city's council — and into her own family.", streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-  { title: "Whispers of Malabar", eyebrow: "New Season · Drama", img: "https://picsum.photos/seed/malabar3/1600/900", synopsis: "Three generations of a spice-trading family navigate love, land disputes, and a coastline that keeps changing beneath their feet.", streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+  { title: "The Last Ember", eyebrow: "EmoSports Original · Fantasy", img: "https://picsum.photos/seed/ember1/1600/900", synopsis: "When the last flame-keeper of a dying kingdom goes missing, a reluctant smuggler must cross a war-torn coastline to find her — before the ember she carries goes out for good.", streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8" },
+  { title: "Crimson Tide City", eyebrow: "EmoSports Original · Crime Drama", img: "https://picsum.photos/seed/crimson2/1600/900", synopsis: "A dockside inspector uncovers a smuggling ring that reaches the top of the city's council — and into her own family.", streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8" },
+  { title: "Whispers of Malabar", eyebrow: "New Season · Drama", img: "https://picsum.photos/seed/malabar3/1600/900", synopsis: "Three generations of a spice-trading family navigate love, land disputes, and a coastline that keeps changing beneath their feet.", streamUrl: "https://m-ddsports.akamaized.net/hls/live/2018881/DDSports/master.m3u8" }
 ];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
@@ -141,13 +141,19 @@ let plyrPlayer: any = null;
 // Ensure Plyr is available
 declare var Plyr: any;
 
-function initPlyr() {
-  if (!plyrPlayer && clipVideo) {
-    plyrPlayer = new Plyr(clipVideo, {
-      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
-      settings: ['quality', 'speed'],
-    });
+function initPlyr(qualityOptions?: any) {
+  if (plyrPlayer) {
+    plyrPlayer.destroy();
   }
+  const defaultOptions: any = {
+    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
+    settings: ['quality', 'speed'],
+    autoplay: true,
+  };
+  if (qualityOptions) {
+    defaultOptions.quality = qualityOptions;
+  }
+  plyrPlayer = new Plyr(clipVideo, defaultOptions);
 }
 
 function closeClip() {
@@ -187,8 +193,6 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
   
   const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
 
-  initPlyr();
-
   if (iframeSrc) {
     if (clipImg) clipImg.style.display = 'none';
     if (clipVideo) {
@@ -214,18 +218,23 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
     hlsInstance = new Hls();
     hlsInstance.loadSource(streamUrl);
     hlsInstance.attachMedia(clipVideo);
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function (_event: any, _data: any) {
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function () {
+      // Map available qualities to Plyr
+      const availableQualities = hlsInstance.levels.map((l: any) => l.height);
+      const qualityOptions = {
+        default: availableQualities[0],
+        options: availableQualities,
+        forced: true,
+        onChange: (e: any) => updateQuality(e)
+      };
+      
+      initPlyr(qualityOptions);
+      
       if (plyrPlayer) {
-        // Map available qualities to Plyr
-        const availableQualities = hlsInstance.levels.map((l: any) => l.height)
-        plyrPlayer.options.quality = {
-          default: availableQualities[0],
-          options: availableQualities,
-          forced: true,
-          onChange: (e: any) => updateQuality(e)
-        };
+        plyrPlayer.play().catch((e: any) => console.log('Autoplay prevented:', e));
+      } else {
+        clipVideo.play().catch(e => console.log('Autoplay prevented:', e));
       }
-      clipVideo.play().catch(e => console.log('Autoplay prevented:', e));
     });
     
     // Server Error / Broken link fallback
@@ -345,13 +354,16 @@ async function init() {
   // Load dynamic Indian Backend data
   let allIndianChannels = await fetchIndianChannels();
   
+  const verifiedChannels = [
+    { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://feeds.intoday.in/aajtak/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
+    { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://abp-i.akamaihd.net/hls/live/765529/abphindi/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/ABP_News_logo.svg/1024px-ABP_News_logo.svg.png" },
+    { title: "DD Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://m-ddsports.akamaized.net/hls/live/2018881/DDSports/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/DD_Sports.png/250px-DD_Sports.png" }
+  ];
+  
   if (allIndianChannels.length === 0) {
-    allIndianChannels = [
-      { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
-      { title: "ABP News", tag: "Hindi · News", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
-      { title: "Sony Max", tag: "Hindi · Movies", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" },
-      { title: "Star Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", imgSrc: "" }
-    ];
+    allIndianChannels = verifiedChannels;
+  } else {
+    allIndianChannels = [...verifiedChannels, ...allIndianChannels];
   }
 
   // Helper to get random channels for rows
