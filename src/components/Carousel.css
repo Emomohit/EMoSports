@@ -119,7 +119,14 @@
 }
 
 .carousel-card.channel .card-overlay {
-  display: none; /* No overlay text for circular channels */
+  opacity: 1; /* Always show title for channels */
+  background: linear-gradient(to top, rgba(10, 11, 16, 0.9) 0%, rgba(10,11,16,0.4) 50%, transparent 100%);
+}
+
+.carousel-card.channel .card-title {
+  font-size: 0.8rem;
+  text-align: center;
+  width: 100%;
 }
 
 .carousel-card:hover .card-overlay {

@@ -11,6 +11,15 @@ export interface LiveStream {
 // Fallback image for channels that don't have a logo
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=300&q=80';
 
+// Curated reliable 24/7 streams for a premium experience
+const PREMIUM_STREAMS: LiveStream[] = [
+  { id: 'premium-rb', title: 'Red Bull TV', image: 'https://images.unsplash.com/photo-1541252876127-6f8c7e098485?w=300&q=80', type: 'channel', streamUrl: 'https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8', category: 'Sports' },
+  { id: 'premium-bb', title: 'Bloomberg TV', image: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=300&q=80', type: 'channel', streamUrl: 'https://live.bloomberg.tv/btv/us/master.m3u8', category: 'News' },
+  { id: 'premium-aje', title: 'Al Jazeera', image: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&q=80', type: 'channel', streamUrl: 'https://live-hls-web-aje.getaj.net/AJE/index.m3u8', category: 'News' },
+  { id: 'premium-sky', title: 'Sky News', image: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=300&q=80', type: 'channel', streamUrl: 'https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8', category: 'News' },
+  { id: 'premium-cbs', title: 'CBS News', image: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=300&q=80', type: 'channel', streamUrl: 'https://cbsn-us.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8', category: 'News' },
+];
+
 // Global cache to avoid refetching
 let channelsCache: LiveStream[] = [];
 
@@ -43,7 +52,7 @@ export const fetchLiveChannels = async (): Promise<LiveStream[]> => {
       }
     });
 
-    const liveStreams: LiveStream[] = [];
+    const liveStreams: LiveStream[] = [...PREMIUM_STREAMS];
 
     // Combine channels with their active streams
     for (const channel of channels) {
