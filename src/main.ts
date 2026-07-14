@@ -219,6 +219,7 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string) {
     });
   }
 }
+}
 
 document.getElementById('playBtn')?.addEventListener('click', () => {
   const h = heroes[heroIdx];
