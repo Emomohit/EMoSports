@@ -131,3 +131,6 @@
   font-size: 0.95rem;
   line-height: 1.2;
 }
+
+/* Smooth Scroll */
+.carousel-track { scroll-behavior: smooth; }
