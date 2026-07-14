@@ -36,3 +36,6 @@
     width: 90%;
   }
 }
+
+/* Footer spacing */
+.footer-space { padding-bottom: 2rem; }
