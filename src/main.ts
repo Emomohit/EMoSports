@@ -511,19 +511,6 @@ document.body.addEventListener('click', (e) => {
 });
 
 /* ---------------- PLAYER OVERLAY SWITCHERS ---------------- */
-let currentStreamLang = 'hi'; // Default attempt Hindi
-
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentStreamLang = btn.getAttribute('data-lang') || '';
-    
-    // Auto-click the currently active server to reload with new language
-    const activeServerBtn = document.querySelector('.server-btn.active') as HTMLElement;
-    if (activeServerBtn) activeServerBtn.click();
-  });
-});
 
 document.querySelectorAll('.server-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -535,10 +522,10 @@ document.querySelectorAll('.server-btn').forEach(btn => {
     if (!clipIframe) return;
     
     let url = '';
-    if (server === 'vidsrc') {
-       url = `https://vidsrc.me/embed/${currentMediaType}?tmdb=${currentTmdbId}`;
-    } else if (server === 'autoembed') {
+    if (server === 'autoembed') {
        url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+    } else if (server === 'vidlink') {
+       url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=E50914&autoplay=false`;
     } else if (server === 'multiembed') {
        url = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
     } else if (server === 'embedsu') {
