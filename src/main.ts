@@ -535,19 +535,16 @@ document.querySelectorAll('.server-btn').forEach(btn => {
     if (!clipIframe) return;
     
     let url = '';
-    if (server === 'autoembed') {
-       url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
-    } else if (server === 'vidlink') {
-       url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=E50914&autoplay=false`;
-    } else if (server === 'smashy') {
-       url = `https://player.smashy.stream/${currentMediaType}/${currentTmdbId}`;
-    } else if (server === 'vidsrc') {
+    if (server === 'vidsrc') {
        url = `https://vidsrc.me/embed/${currentMediaType}?tmdb=${currentTmdbId}`;
+    } else if (server === 'autoembed') {
+       url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+    } else if (server === 'multiembed') {
+       url = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
+    } else if (server === 'embedsu') {
+       url = `https://embed.su/embed/${currentMediaType}/${currentTmdbId}`;
     }
     
-    if (currentStreamLang && server !== 'autoembed') {
-       url += (url.includes('?') ? '&' : '?') + `lang=${currentStreamLang}&language=${currentStreamLang}`;
-    }
     clipIframe.src = url;
   });
 });

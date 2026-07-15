@@ -169,17 +169,18 @@
     <button class="player-settings-btn" id="playerSettingsBtn" title="Audio & Settings">⚙️</button>
     <div class="player-settings-menu hidden" id="playerSettingsMenu">
       <h4>AUDIO & LANGUAGE</h4>
-      <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="hi">🎙️ Hindi Dubbed</button>
-        <button class="lang-btn" data-lang="en">🎙️ English</button>
-        <button class="lang-btn" data-lang="">🎙️ Original</button>
+      <div style="font-size: 13px; color: #ccc; margin-bottom: 16px; line-height: 1.4; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px;">
+        💡 <b>How to get Hindi Audio:</b><br>
+        1. Start the video<br>
+        2. Click the <b>Gear Icon (⚙️) / CC</b> inside the player controls<br>
+        3. Select <b>Audio Track -> Hindi</b> (if available)
       </div>
-      <h4>SERVER OPTIONS</h4>
+      <h4>SERVER OPTIONS (IF VIDEO FAILS)</h4>
       <div class="server-switcher">
-        <button class="server-btn active" data-server="vidlink">Server 1 (VidLink - Dual Audio)</button>
-        <button class="server-btn" data-server="vidsrc">Server 2 (VidSrc - HD)</button>
-        <button class="server-btn" data-server="smashy">Server 3 (Smashy - Dubs)</button>
-        <button class="server-btn" data-server="autoembed">Server 4 (AutoEmbed)</button>
+        <button class="server-btn active" data-server="vidsrc">Server 1 (VidSrc - Fastest)</button>
+        <button class="server-btn" data-server="autoembed">Server 2 (AutoEmbed 4K)</button>
+        <button class="server-btn" data-server="multiembed">Server 3 (MultiEmbed)</button>
+        <button class="server-btn" data-server="embedsu">Server 4 (Embed.SU)</button>
       </div>
     </div>
     <button class="clip-close" id="clipClose">✕</button>
