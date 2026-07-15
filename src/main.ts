@@ -251,19 +251,20 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
   clipViewer.classList.remove('hidden');
   if (clipName) clipName.textContent = title;
   
-  const serverSwitcher = document.getElementById('serverSwitcher');
-  if (serverSwitcher) {
-    if (tmdbId && mediaType) {
-      currentTmdbId = tmdbId;
-      currentMediaType = mediaType;
-      serverSwitcher.style.display = 'flex';
-      document.querySelectorAll('.server-btn').forEach((b, i) => {
-        if(i === 0) b.classList.add('active');
-        else b.classList.remove('active');
-      });
-    } else {
-      serverSwitcher.style.display = 'none';
-    }
+  const playerSettingsBtn = document.getElementById('playerSettingsBtn');
+  if (tmdbId && mediaType) {
+    currentTmdbId = tmdbId;
+    currentMediaType = mediaType;
+    if (playerSettingsBtn) playerSettingsBtn.style.display = 'block';
+    // reset active server button state
+    document.querySelectorAll('.server-btn').forEach((b, i) => {
+      if(i === 0) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  } else {
+    currentTmdbId = '';
+    currentMediaType = '';
+    if (playerSettingsBtn) playerSettingsBtn.style.display = 'none';
   }
 
   const clipMini = document.getElementById('clipMini') as HTMLImageElement;
