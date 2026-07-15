@@ -286,7 +286,13 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
     if (plyrContainer) plyrContainer.style.display = 'none';
     
     if (clipIframe) {
-      clipIframe.src = iframeSrc;
+      if (tmdbId) {
+         // trigger the server button to load with correct language
+         const activeServerBtn = document.querySelector('.server-btn.active') as HTMLElement;
+         if (activeServerBtn) activeServerBtn.click();
+      } else {
+         clipIframe.src = iframeSrc;
+      }
       clipIframe.style.display = 'block';
     }
   } else if (streamUrl && clipVideo) {
@@ -504,7 +510,21 @@ document.body.addEventListener('click', (e) => {
   if (row) row.scrollBy({ left: dir * 480, behavior: 'smooth' });
 });
 
-/* ---------------- SERVER SWITCHER ---------------- */
+/* ---------------- PLAYER OVERLAY SWITCHERS ---------------- */
+let currentStreamLang = 'hi'; // Default attempt Hindi
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentStreamLang = btn.getAttribute('data-lang') || '';
+    
+    // Auto-click the currently active server to reload with new language
+    const activeServerBtn = document.querySelector('.server-btn.active') as HTMLElement;
+    if (activeServerBtn) activeServerBtn.click();
+  });
+});
+
 document.querySelectorAll('.server-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
@@ -514,12 +534,20 @@ document.querySelectorAll('.server-btn').forEach(btn => {
     const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
     if (!clipIframe) return;
     
+    let url = '';
     if (server === 'autoembed') {
-       clipIframe.src = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+       url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
     } else if (server === 'multiembed') {
-       clipIframe.src = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
+       url = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
     } else if (server === 'embedsu') {
-       clipIframe.src = `https://embed.su/embed/${currentMediaType}/${currentTmdbId}`;
+       url = `https://embed.su/embed/${currentMediaType}/${currentTmdbId}`;
+    } else if (server === 'vidsrc') {
+       url = `https://vidsrc.me/embed/${currentMediaType}?tmdb=${currentTmdbId}`;
     }
+    
+    if (currentStreamLang) {
+       url += (url.includes('?') ? '&' : '?') + `lang=${currentStreamLang}&language=${currentStreamLang}`;
+    }
+    clipIframe.src = url;
   });
 });

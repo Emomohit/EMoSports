@@ -89,11 +89,11 @@ button{font-family:inherit; cursor:pointer;}
 .clip-tap-left{ left:0; } .clip-tap-right{ right:0; }
 .clip-caption{ position:absolute; bottom:18px; left:14px; right:14px; z-index:3; font-size:13px; color:#eee; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
 
-/* server switcher */
-.server-switcher { position:absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; display:flex; gap: 6px; background: rgba(0,0,0,0.6); padding: 4px; border-radius: 20px; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-.server-btn { background: transparent; border: none; color: var(--slate); font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 16px; cursor: pointer; transition: all 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-.server-btn:hover { color: var(--ink); background: rgba(255,255,255,0.1); }
-.server-btn.active { color: var(--ink); background: var(--teal); box-shadow: 0 0 12px rgba(229,9,20,0.6); }
+/* server & lang switcher */
+.server-switcher, .lang-switcher { /* styles already applied inline in html for container */ }
+.server-btn, .lang-btn { background: transparent; border: none; color: var(--slate); font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 16px; cursor: pointer; transition: all 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.server-btn:hover, .lang-btn:hover { color: var(--ink); background: rgba(255,255,255,0.1); }
+.server-btn.active, .lang-btn.active { color: var(--ink); background: var(--teal); box-shadow: 0 0 12px rgba(229,9,20,0.6); }
 
 /* ---------- HERO ---------- */
 .hero{ position:relative; height:95vh; min-height:600px; display:flex; align-items:flex-end; overflow:hidden; }
