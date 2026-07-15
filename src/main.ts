@@ -246,62 +246,76 @@ document.getElementById('playBtn')?.addEventListener('click', () => {
 });
 
 
-/* ---------------- BACKEND LOGIC: FETCH INDIAN IPTV STREAMS ---------------- */
-async function fetchIndianChannels() {
-  // Guaranteed Working Channels (Mix of Proxied Indian & Global Free 24/7 Streams)
-  const ROBUST_CHANNELS = [
-    { title: "Aaj Tak", tag: "Hindi · News", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Ffeeds.intoday.in%2Faajtak%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png" },
-    { title: "India TV", tag: "Hindi · News", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fliveapp.indiatvnews.com%2Findiatv%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/India_TV.svg/1200px-India_TV.svg.png" },
-    { title: "DD National", tag: "Hindi · Entertainment", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fm-ddnational.akamaized.net%2Fhls%2Flive%2F2018880%2FDDNational%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/DD_National_logo.svg/1200px-DD_National_logo.svg.png" },
-    { title: "DD Sports", tag: "Hindi · Sports", live: true, streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Fm-ddsports.akamaized.net%2Fhls%2Flive%2F2018881%2FDDSports%2Fmaster.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/DD_Sports.png/250px-DD_Sports.png" },
-    { title: "Red Bull TV", tag: "English · Action Sports", live: true, streamUrl: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/Red_Bull_TV_logo.svg/1200px-Red_Bull_TV_logo.svg.png" },
-    { title: "Bloomberg", tag: "English · News", live: true, streamUrl: "https://live.bloomberg.tv/hls/live/608358/a/index.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Bloomberg_Television_logo.svg/1200px-Bloomberg_Television_logo.svg.png" },
-    { title: "NASA TV", tag: "English · Science", live: true, streamUrl: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg" },
-    { title: "Al Jazeera", tag: "English · News", live: true, streamUrl: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Al_Jazeera_English_logo.svg/1200px-Al_Jazeera_English_logo.svg.png" },
-    { title: "Sky News", tag: "English · News", live: true, streamUrl: "https://skynewsau-live.akamaized.net/hls/live/2002689/skynewsau-extra1/master.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a5/Sky_News_logo.svg/1200px-Sky_News_logo.svg.png" },
-    { title: "France 24", tag: "English · News", live: true, streamUrl: "https://static.france24.com/live/F24_EN_HI_HLS/live_web.m3u8", imgSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/France_24_logo.svg/1200px-France_24_logo.svg.png" }
-  ];
+/* ---------------- BACKEND LOGIC: FETCH FRESH APIs ---------------- */
 
-  let indianChannels = [...ROBUST_CHANNELS];
-
-  // Fetch hundreds of live channels from API as requested by user
+// 1. Fetch Pluto TV Live Channels (100% Working, No CORS)
+async function fetchPlutoTV() {
   try {
-    const channelsRes = await fetch('https://iptv-org.github.io/api/channels.json');
-    const streamsRes = await fetch('https://iptv-org.github.io/api/streams.json');
-    const channels = await channelsRes.json();
-    const streams = await streamsRes.json();
-
-    const streamMap = new Map();
-    streams.forEach((s: any) => {
-      if (s.status !== 'error' && s.url && s.url.includes('.m3u8')) {
-        streamMap.set(s.channel, s.url);
+    const response = await fetch('https://i.mjh.nz/PlutoTV/us.m3u8');
+    const text = await response.text();
+    const lines = text.split('\\n');
+    let channels = [];
+    let currentChannel: any = {};
+    for (let line of lines) {
+      if (line.startsWith('#EXTINF')) {
+        const titleMatch = line.match(/tvg-name="([^"]+)"/);
+        const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+        currentChannel = {
+          title: titleMatch ? titleMatch[1] : 'Unknown Channel',
+          imgSrc: logoMatch ? logoMatch[1] : '',
+          tag: 'Live TV',
+          live: true
+        };
+      } else if (line.startsWith('http')) {
+        currentChannel.streamUrl = line.trim();
+        channels.push(currentChannel);
+        currentChannel = {};
       }
-    });
-
-    for (const c of channels) {
-      if (c.country === 'IN' || c.languages.includes('hin')) {
-        const sUrl = streamMap.get(c.id);
-        if (sUrl && !indianChannels.some(ex => ex.title === c.name)) {
-          indianChannels.push({
-            title: c.name,
-            tag: (c.categories?.[0] || 'Live TV') + ' · India',
-            live: true,
-            streamUrl: sUrl,
-            imgSrc: c.logo || `https://picsum.photos/seed/${c.id}/440/248`
-          });
-        }
-      }
-      if (indianChannels.length >= 100) break;
     }
+    // Filter out empty or bad ones and return
+    return channels.filter(c => c.streamUrl).slice(0, 100); 
   } catch (err) {
-    console.error('API Fetch failed, using robust fallback.', err);
-    // Fill the rest with duplicates if API fails completely so the UI doesn't look empty
-    while (indianChannels.length < 50) {
-      indianChannels = indianChannels.concat(ROBUST_CHANNELS);
-    }
+    console.error('Pluto TV fetch failed', err);
+    return [];
   }
+}
 
-  return indianChannels;
+// 2. Fetch Fresh Movies from YTS API
+async function fetchMovies() {
+  try {
+    const res = await fetch('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=20');
+    const data = await res.json();
+    if (!data || !data.data || !data.data.movies) return [];
+    
+    return data.data.movies.map((m: any) => ({
+      title: m.title,
+      tag: (m.genres?.[0] || 'Action') + ' · Movie',
+      live: false,
+      iframeSrc: `https://vidsrc.to/embed/movie/${m.imdb_code}`,
+      imgSrc: m.medium_cover_image
+    }));
+  } catch (err) {
+    console.error('Movie fetch failed', err);
+    return [];
+  }
+}
+
+// 3. Fetch Top TV Shows from TVMaze API
+async function fetchTVShows() {
+  try {
+    const res = await fetch('https://api.tvmaze.com/shows');
+    const shows = await res.json();
+    return shows.slice(0, 20).map((s: any) => ({
+      title: s.name,
+      tag: (s.genres?.[0] || 'Drama') + ' · TV Show',
+      live: false,
+      iframeSrc: `https://vidsrc.to/embed/tv/${s.externals?.imdb || ''}`,
+      imgSrc: s.image?.medium || `https://picsum.photos/seed/${s.id}/440/248`
+    }));
+  } catch (err) {
+    console.error('TV Show fetch failed', err);
+    return [];
+  }
 }
 
 /* ---------------- CARD RENDERING LOGIC ---------------- */
@@ -342,42 +356,47 @@ document.body.addEventListener('click', (e) => {
 
 /* ---------------- INITIALIZE DATA ---------------- */
 async function init() {
-  // Load dynamic Indian Backend data
-  let allIndianChannels = await fetchIndianChannels();
+  // Load dynamic Backend data from fresh APIs
+  const [plutoChannels, ytsMovies, tvShows] = await Promise.all([
+    fetchPlutoTV(),
+    fetchMovies(),
+    fetchTVShows()
+  ]);
 
   // Helper to slice channels sequentially so they never shuffle on refresh
   const getSequential = (arr: any[], start: number, count: number) => {
+    if (!arr || arr.length === 0) return [];
     return arr.slice(start, start + count);
   };
 
-  // Populate UI Rows with real playable channels (static order, no shuffle)
-  renderCards('live-row', getSequential(allIndianChannels, 0, 8), 'live');
-  renderCards('trending-row', getSequential(allIndianChannels, 8, 8), 'trending');
-  renderCards('continue-row', getSequential(allIndianChannels, 16, 4), 'continue');
+  // Populate UI Rows
+  renderCards('live-row', getSequential(plutoChannels, 0, 8), 'live');
+  renderCards('trending-row', getSequential(ytsMovies, 0, 8), 'trending');
+  renderCards('continue-row', getSequential(tvShows, 0, 4), 'continue');
 
-  // Movies Page (just take sequential chunks to avoid shuffle)
-  renderCards('movies-new', getSequential(allIndianChannels, 0, 5), 'trending');
-  renderCards('movies-action', getSequential(allIndianChannels, 5, 4), 'trending');
-  renderCards('movies-romcom', getSequential(allIndianChannels, 9, 4), 'trending');
+  // Movies Page
+  renderCards('movies-new', getSequential(ytsMovies, 8, 5), 'movies');
+  renderCards('movies-action', getSequential(ytsMovies, 13, 4), 'movies');
+  renderCards('movies-romcom', getSequential(ytsMovies, 17, 3), 'movies');
 
   // TV Shows Page
-  renderCards('tv-binge', getSequential(allIndianChannels, 13, 4), 'trending');
-  renderCards('tv-new', getSequential(allIndianChannels, 17, 4), 'trending');
-  renderCards('tv-fan', getSequential(allIndianChannels, 21, 4), 'trending');
+  renderCards('tv-binge', getSequential(tvShows, 4, 4), 'tv');
+  renderCards('tv-new', getSequential(tvShows, 8, 4), 'tv');
+  renderCards('tv-fan', getSequential(tvShows, 12, 4), 'tv');
 
-  // Sports Page
-  renderCards('sports-highlights', getSequential(allIndianChannels, 25, 4), 'trending');
+  // Sports Page (using remaining Pluto TV live channels)
+  renderCards('sports-highlights', getSequential(plutoChannels, 8, 8), 'sports');
 
   // Originals - EmoLearners Instagram Embeds
   const emolearnersOriginals = [
-    { title: "EmoLearners - Web Dev", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/CrLd5r9I014/embed", imgSrc: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80" },
-    { title: "EmoLearners - JavaScript", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/Cp0cR6rI7lq/embed", imgSrc: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80" },
-    { title: "EmoLearners - Tech Hacks", tag: "Original · Reel", iframeSrc: "https://www.instagram.com/p/Co8R6bZIu3a/embed", imgSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80" }
+    { title: "EmoLearners - Web Dev", tag: "Original · Reel", live: false, iframeSrc: "https://www.instagram.com/p/CrLd5r9I014/embed", imgSrc: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80" },
+    { title: "EmoLearners - JavaScript", tag: "Original · Reel", live: false, iframeSrc: "https://www.instagram.com/p/Cp0cR6rI7lq/embed", imgSrc: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80" },
+    { title: "EmoLearners - Tech Hacks", tag: "Original · Reel", live: false, iframeSrc: "https://www.instagram.com/p/Co8R6bZIu3a/embed", imgSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80" }
   ];
   
   renderCards('originals-row', emolearnersOriginals, 'originals');
   renderCards('originals-full', emolearnersOriginals, 'originals');
-  renderCards('originals-soon', getSequential(allIndianChannels, 0, 3), 'trending');
+  renderCards('originals-soon', getSequential(ytsMovies, 0, 3), 'originals');
 }
 
 init();
