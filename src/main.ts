@@ -123,27 +123,30 @@ if (dropEl) {
 }
 
 /* ---------------- HERO ROTATION ---------------- */
-const heroes = [
-  { title: "Deadpool & Wolverine", eyebrow: "Action · Comedy", img: "https://image.tmdb.org/t/p/original/9l1eZiJHmhr5jIlthMdJN5WYoff.jpg", synopsis: "Deadpool is offered a place in the Marvel Cinematic Universe by the Time Variance Authority.", iframeSrc: "https://autoembed.co/movie/imdb/tt6263850" },
-  { title: "Dune: Part Two", eyebrow: "Sci-Fi · Epic", img: "https://image.tmdb.org/t/p/original/8b8R8l88Qje9dn9OE8ez05deCEP.jpg", synopsis: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.", iframeSrc: "https://autoembed.co/movie/imdb/tt15239678" },
-  { title: "Oppenheimer", eyebrow: "Biography · Drama", img: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBRoOoA0i.jpg", synopsis: "The story of American scientist, J. Robert Oppenheimer, and his role in the development of the atomic bomb.", iframeSrc: "https://autoembed.co/movie/imdb/tt15398776" }
-];
+let heroes: any[] = [];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
 const heroTitle = document.getElementById('heroTitle');
 const heroEyebrow = document.getElementById('heroEyebrow');
 const heroSynopsis = document.getElementById('heroSynopsis');
+const heroMeta = document.getElementById('heroMeta');
 const heroDots = document.getElementById('heroDots');
 
-if (heroDots && heroBg) {
-  heroes.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
-    dot.addEventListener('click', () => setHero(i));
-    heroDots.appendChild(dot);
-  });
+function setupHeroes() {
+  if (heroDots && heroBg && heroes.length > 0) {
+    heroDots.innerHTML = '';
+    heroes.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => setHero(i));
+      heroDots.appendChild(dot);
+    });
+    setHero(0);
+  }
 }
+
 function setHero(i: number) {
+  if (heroes.length === 0) return;
   heroIdx = i;
   const heroData = heroes[i];
   if (heroBg) {
@@ -153,6 +156,9 @@ function setHero(i: number) {
       if (heroTitle) heroTitle.textContent = heroData.title;
       if (heroEyebrow) heroEyebrow.textContent = heroData.eyebrow;
       if (heroSynopsis) heroSynopsis.textContent = heroData.synopsis;
+      if (heroMeta) {
+        heroMeta.innerHTML = heroData.meta.map((m: string) => `<span class="badge">${m}</span>`).join('');
+      }
       heroBg.style.opacity = '1';
     }, 250);
   }
@@ -329,7 +335,8 @@ async function fetchMovies(genreId?: string, page = 1) {
       tag: `Movie · ${m.vote_average ? m.vote_average.toFixed(1) : 'NR'} ★`,
       live: false,
       iframeSrc: `https://autoembed.co/movie/tmdb/${m.id}`,
-      imgSrc: `${TMDB_IMG}${m.poster_path}`
+      imgSrc: `${TMDB_IMG}${m.poster_path}`,
+      raw: m
     }));
   } catch (err) {
     console.error('Movie fetch failed', err);
@@ -350,7 +357,8 @@ async function fetchTVShows(page = 1) {
       tag: `TV Show · ${s.vote_average ? s.vote_average.toFixed(1) : 'NR'} ★`,
       live: false,
       iframeSrc: `https://autoembed.co/tv/tmdb/${s.id}`,
-      imgSrc: `${TMDB_IMG}${s.poster_path}`
+      imgSrc: `${TMDB_IMG}${s.poster_path}`,
+      raw: s
     }));
   } catch (err) {
     console.error('TV Show fetch failed', err);
@@ -407,6 +415,19 @@ async function init() {
     fetchTVShows(1),            // Trending TV
     fetchTVShows(2)             // More TV
   ]);
+
+  // Setup Dynamic Heroes
+  if (trendingMovies.length > 0) {
+    heroes = trendingMovies.slice(0, 5).filter((m: any) => m.raw.backdrop_path).map((m: any) => ({
+      title: m.title,
+      eyebrow: m.tag,
+      img: `https://image.tmdb.org/t/p/original${m.raw.backdrop_path}`,
+      synopsis: m.raw.overview || "Experience the magic of cinema.",
+      iframeSrc: m.iframeSrc,
+      meta: [m.raw.release_date?.split('-')[0] || "2024", m.raw.original_language?.toUpperCase() || "HI", "HD"]
+    }));
+    setupHeroes();
+  }
 
   // Populate UI Rows
   renderCards('trending-row', trendingMovies.slice(0, 8), 'trending');
