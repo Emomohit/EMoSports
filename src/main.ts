@@ -30,43 +30,51 @@ function goToPage(name: string) {
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
-/* ---------------- SEARCH LOGIC ---------------- */
+const TMDB_API_KEY = '15d2ea6d0dc1d476efbca3eba2b9bbfb'; // Public key for demo
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
+
+/* ---------------- SEARCH LOGIC (LIVE DEBOUNCE) ---------------- */
 const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 const searchBtn = document.getElementById('searchBtn');
+let searchTimeout: any = null;
 
 async function performSearch() {
   if (!searchInput) return;
   const query = searchInput.value.trim();
-  if (!query) return;
+  if (!query) {
+    goToPage('home');
+    return;
+  }
   
   goToPage('search');
   const searchTitle = document.getElementById('searchTitle');
   if (searchTitle) searchTitle.textContent = `Searching for "${query}"...`;
   
   const el = document.getElementById('searchResults');
-  if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;">Loading...</div>';
+  if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;"><div class="spinner"></div></div>';
   
   try {
-    const res = await fetch(`https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(query)}&limit=30`);
+    const res = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`);
     const data = await res.json();
     
-    let movies = [];
-    if (data && data.data && data.data.movies) {
-      movies = data.data.movies.map((m: any) => ({
-        title: m.title,
-        tag: (m.genres?.[0] || 'Action') + ' · Movie',
+    let results = [];
+    if (data && data.results) {
+      results = data.results.filter((item: any) => item.media_type !== 'person' && item.poster_path).map((m: any) => ({
+        title: m.title || m.name,
+        tag: (m.media_type === 'tv' ? 'TV Show' : 'Movie') + ` · ${m.vote_average ? m.vote_average.toFixed(1) : 'NR'} ★`,
         live: false,
-        iframeSrc: `https://autoembed.co/movie/imdb/${m.imdb_code}`,
-        imgSrc: m.medium_cover_image
+        iframeSrc: `https://autoembed.co/${m.media_type === 'tv' ? 'tv' : 'movie'}/tmdb/${m.id}`,
+        imgSrc: `${TMDB_IMG}${m.poster_path}`
       }));
     }
     
-    if (movies.length === 0) {
-      if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;">No movies found. Try another search.</div>';
+    if (results.length === 0) {
+      if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;">No results found. Try another search.</div>';
       if (searchTitle) searchTitle.textContent = `No results for "${query}"`;
     } else {
       if (searchTitle) searchTitle.textContent = `Results for "${query}"`;
-      renderCards('searchResults', movies); 
+      renderCards('searchResults', results); 
     }
   } catch (e) {
     if (el) el.innerHTML = '<div style="padding: 40px; color: var(--hype); text-align: center; grid-column: 1 / -1;">Error fetching search results.</div>';
@@ -74,9 +82,12 @@ async function performSearch() {
 }
 
 if (searchBtn) searchBtn.addEventListener('click', performSearch);
-if (searchInput) searchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') performSearch();
-});
+if (searchInput) {
+  searchInput.addEventListener('input', () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(performSearch, 500); // 500ms debounce
+  });
+}
 
 /* ---------------- STREAK / XP ---------------- */
 let streak = 12;
@@ -297,19 +308,22 @@ document.getElementById('playBtn')?.addEventListener('click', () => {
 });
 
 /* ---------------- BACKEND LOGIC: FETCH FRESH APIs ---------------- */
-// 1. Fetch Fresh Movies from YTS API
-async function fetchMovies() {
+// 1. Fetch Indian Movies from TMDB API
+async function fetchMovies(genreId?: string, page = 1) {
   try {
-    const res = await fetch('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=30');
-    const data = await res.json();
-    if (!data || !data.data || !data.data.movies) return [];
+    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=hi-IN`;
+    if (genreId) url += `&with_genres=${genreId}`;
     
-    return data.data.movies.map((m: any) => ({
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !data.results) return [];
+    
+    return data.results.filter((m: any) => m.poster_path).map((m: any) => ({
       title: m.title,
-      tag: (m.genres?.[0] || 'Action') + ' · Movie',
+      tag: `Movie · ${m.vote_average ? m.vote_average.toFixed(1) : 'NR'} ★`,
       live: false,
-      iframeSrc: `https://autoembed.co/movie/imdb/${m.imdb_code}`,
-      imgSrc: m.medium_cover_image
+      iframeSrc: `https://autoembed.co/movie/tmdb/${m.id}`,
+      imgSrc: `${TMDB_IMG}${m.poster_path}`
     }));
   } catch (err) {
     console.error('Movie fetch failed', err);
@@ -317,17 +331,19 @@ async function fetchMovies() {
   }
 }
 
-// 2. Fetch Top TV Shows from TVMaze API
-async function fetchTVShows() {
+// 2. Fetch Indian TV Shows from TMDB API
+async function fetchTVShows(page = 1) {
   try {
-    const res = await fetch('https://api.tvmaze.com/shows');
-    const shows = await res.json();
-    return shows.slice(0, 20).map((s: any) => ({
+    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=hi-IN`);
+    const data = await res.json();
+    if (!data || !data.results) return [];
+    
+    return data.results.filter((s: any) => s.poster_path).map((s: any) => ({
       title: s.name,
-      tag: (s.genres?.[0] || 'Drama') + ' · TV Show',
+      tag: `TV Show · ${s.vote_average ? s.vote_average.toFixed(1) : 'NR'} ★`,
       live: false,
-      iframeSrc: `https://autoembed.co/tv/imdb/${s.externals?.imdb || ''}`,
-      imgSrc: s.image?.medium || `https://picsum.photos/seed/${s.id}/440/248`
+      iframeSrc: `https://autoembed.co/tv/tmdb/${s.id}`,
+      imgSrc: `${TMDB_IMG}${s.poster_path}`
     }));
   } catch (err) {
     console.error('TV Show fetch failed', err);
@@ -373,31 +389,31 @@ document.body.addEventListener('click', (e) => {
 
 /* ---------------- INITIALIZE DATA ---------------- */
 async function init() {
-  // Load dynamic Backend data from fresh APIs
-  const [ytsMovies, tvShows] = await Promise.all([
-    fetchMovies(),
-    fetchTVShows()
+  // Load dynamic Backend data from TMDB APIs
+  const [
+    trendingMovies, actionMovies, romanceMovies,
+    tvShows, newTvShows
+  ] = await Promise.all([
+    fetchMovies('', 1),         // Trending (All Genres)
+    fetchMovies('28', 1),       // Action
+    fetchMovies('10749', 1),    // Romance
+    fetchTVShows(1),            // Trending TV
+    fetchTVShows(2)             // More TV
   ]);
 
-  // Helper to slice channels sequentially so they never shuffle on refresh
-  const getSequential = (arr: any[], start: number, count: number) => {
-    if (!arr || arr.length === 0) return [];
-    return arr.slice(start, start + count);
-  };
-
   // Populate UI Rows
-  renderCards('trending-row', getSequential(ytsMovies, 0, 8), 'trending');
-  renderCards('continue-row', getSequential(tvShows, 0, 4), 'continue');
+  renderCards('trending-row', trendingMovies.slice(0, 8), 'trending');
+  renderCards('continue-row', tvShows.slice(0, 4), 'continue');
 
   // Movies Page
-  renderCards('movies-new', getSequential(ytsMovies, 8, 5), 'movies');
-  renderCards('movies-action', getSequential(ytsMovies, 13, 4), 'movies');
-  renderCards('movies-romcom', getSequential(ytsMovies, 17, 4), 'movies');
+  renderCards('movies-new', trendingMovies.slice(8, 14), 'movies');
+  renderCards('movies-action', actionMovies.slice(0, 8), 'movies');
+  renderCards('movies-romcom', romanceMovies.slice(0, 8), 'movies');
 
   // TV Shows Page
-  renderCards('tv-binge', getSequential(tvShows, 4, 4), 'tv');
-  renderCards('tv-new', getSequential(tvShows, 8, 4), 'tv');
-  renderCards('tv-fan', getSequential(tvShows, 12, 4), 'tv');
+  renderCards('tv-binge', tvShows.slice(4, 10), 'tv');
+  renderCards('tv-new', newTvShows.slice(0, 6), 'tv');
+  renderCards('tv-fan', newTvShows.slice(6, 12), 'tv');
 
   // Originals - EmoLearners Instagram Embeds
   const emolearnersOriginals = [
