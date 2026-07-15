@@ -60,7 +60,12 @@ async function performSearch() {
     
     let results = [];
     if (data && data.results) {
-      results = data.results.filter((item: any) => item.media_type !== 'person' && item.poster_path).map((m: any) => ({
+      results = data.results.filter((item: any) => {
+        if (item.media_type === 'person' || !item.poster_path) return false;
+        const releaseDate = item.release_date || item.first_air_date;
+        if (!releaseDate || new Date(releaseDate) > new Date()) return false;
+        return true;
+      }).map((m: any) => ({
         title: m.title || m.name,
         tag: (m.media_type === 'tv' ? 'TV Show' : 'Movie') + ` · ${m.vote_average ? m.vote_average.toFixed(1) : 'NR'} ★`,
         live: false,
@@ -311,7 +316,8 @@ document.getElementById('playBtn')?.addEventListener('click', () => {
 // 1. Fetch Indian Movies from TMDB API
 async function fetchMovies(genreId?: string, page = 1) {
   try {
-    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=hi-IN`;
+    const today = new Date().toISOString().split('T')[0];
+    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&primary_release_date.lte=${today}`;
     if (genreId) url += `&with_genres=${genreId}`;
     
     const res = await fetch(url);
@@ -334,7 +340,8 @@ async function fetchMovies(genreId?: string, page = 1) {
 // 2. Fetch Indian TV Shows from TMDB API
 async function fetchTVShows(page = 1) {
   try {
-    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=hi-IN`);
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&first_air_date.lte=${today}`);
     const data = await res.json();
     if (!data || !data.results) return [];
     
