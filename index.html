@@ -165,17 +165,21 @@
   <div class="clip-card" style="display:flex; flex-direction:column;">
     <div class="clip-segments" id="clipSegments"></div>
     <div class="clip-head"><img class="mini" id="clipMini" src="" onerror="this.style.display='none'"><span id="clipName"></span></div>
-    <div class="player-overlay-controls" id="serverSwitcher" style="display:none; position:absolute; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 10; display:flex; flex-direction:column; gap: 8px; align-items:center;">
-      <div class="lang-switcher" style="display:flex; gap: 6px; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 20px; backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+    
+    <button class="player-settings-btn" id="playerSettingsBtn" title="Audio & Settings">⚙️</button>
+    <div class="player-settings-menu hidden" id="playerSettingsMenu">
+      <h4>AUDIO & LANGUAGE</h4>
+      <div class="lang-switcher">
         <button class="lang-btn active" data-lang="hi">🎙️ Hindi Dubbed</button>
         <button class="lang-btn" data-lang="en">🎙️ English</button>
-        <button class="lang-btn" data-lang="">🎙️ Original Audio</button>
+        <button class="lang-btn" data-lang="">🎙️ Original</button>
       </div>
-      <div class="server-switcher" style="display:flex; gap: 6px; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 20px; backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-        <button class="server-btn active" data-server="autoembed">Server 1 (4K)</button>
-        <button class="server-btn" data-server="vidlink">Server 2 (Dual Audio)</button>
-        <button class="server-btn" data-server="smashy">Server 3 (Dubs)</button>
-        <button class="server-btn" data-server="vidsrc">Server 4 (HD)</button>
+      <h4>SERVER OPTIONS</h4>
+      <div class="server-switcher">
+        <button class="server-btn active" data-server="cineby">Server 1 (Cineby - Hindi Priority)</button>
+        <button class="server-btn" data-server="autoembed">Server 2 (AutoEmbed)</button>
+        <button class="server-btn" data-server="vidlink">Server 3 (VidLink Dual Audio)</button>
+        <button class="server-btn" data-server="smashy">Server 4 (Smashy Dubs)</button>
       </div>
     </div>
     <button class="clip-close" id="clipClose">✕</button>
