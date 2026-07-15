@@ -545,7 +545,7 @@ document.querySelectorAll('.server-btn').forEach(btn => {
        url = `https://vidsrc.me/embed/${currentMediaType}?tmdb=${currentTmdbId}`;
     }
     
-    if (currentStreamLang) {
+    if (currentStreamLang && server !== 'autoembed') {
        url += (url.includes('?') ? '&' : '?') + `lang=${currentStreamLang}&language=${currentStreamLang}`;
     }
     clipIframe.src = url;
