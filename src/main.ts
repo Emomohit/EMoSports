@@ -291,7 +291,7 @@ async function fetchMovies() {
       title: m.title,
       tag: (m.genres?.[0] || 'Action') + ' · Movie',
       live: false,
-      iframeSrc: `https://vidsrc.to/embed/movie/${m.imdb_code}`,
+      iframeSrc: m.yt_trailer_code ? `https://www.youtube.com/embed/${m.yt_trailer_code}?autoplay=1` : `https://vidsrc.net/embed/movie/${m.imdb_code}`,
       imgSrc: m.medium_cover_image
     }));
   } catch (err) {
@@ -309,7 +309,7 @@ async function fetchTVShows() {
       title: s.name,
       tag: (s.genres?.[0] || 'Drama') + ' · TV Show',
       live: false,
-      iframeSrc: `https://vidsrc.to/embed/tv/${s.externals?.imdb || ''}`,
+      iframeSrc: `https://vidsrc.net/embed/tv/${s.externals?.imdb || ''}`,
       imgSrc: s.image?.medium || `https://picsum.photos/seed/${s.id}/440/248`
     }));
   } catch (err) {
