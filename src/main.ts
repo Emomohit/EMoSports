@@ -9,7 +9,7 @@ if (nav) {
 }
 
 /* ---------------- PAGE ROUTING ---------------- */
-const pages = ['home', 'movies', 'tvshows', 'sports', 'originals'];
+const pages = ['home', 'movies', 'tvshows', 'sports', 'originals', 'search'];
 const navLinks = document.getElementById('navLinks');
 if (navLinks) {
   navLinks.addEventListener('click', (e) => {
@@ -29,6 +29,54 @@ function goToPage(name: string) {
   });
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
+
+/* ---------------- SEARCH LOGIC ---------------- */
+const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+const searchBtn = document.getElementById('searchBtn');
+
+async function performSearch() {
+  if (!searchInput) return;
+  const query = searchInput.value.trim();
+  if (!query) return;
+  
+  goToPage('search');
+  const searchTitle = document.getElementById('searchTitle');
+  if (searchTitle) searchTitle.textContent = `Searching for "${query}"...`;
+  
+  const el = document.getElementById('searchResults');
+  if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;">Loading...</div>';
+  
+  try {
+    const res = await fetch(`https://yts.mx/api/v2/list_movies.json?query_term=${encodeURIComponent(query)}&limit=30`);
+    const data = await res.json();
+    
+    let movies = [];
+    if (data && data.data && data.data.movies) {
+      movies = data.data.movies.map((m: any) => ({
+        title: m.title,
+        tag: (m.genres?.[0] || 'Action') + ' · Movie',
+        live: false,
+        iframeSrc: `https://autoembed.co/movie/imdb/${m.imdb_code}`,
+        imgSrc: m.medium_cover_image
+      }));
+    }
+    
+    if (movies.length === 0) {
+      if (el) el.innerHTML = '<div style="padding: 40px; color: var(--slate); text-align: center; grid-column: 1 / -1;">No movies found. Try another search.</div>';
+      if (searchTitle) searchTitle.textContent = `No results for "${query}"`;
+    } else {
+      if (searchTitle) searchTitle.textContent = `Results for "${query}"`;
+      renderCards('searchResults', movies); 
+    }
+  } catch (e) {
+    if (el) el.innerHTML = '<div style="padding: 40px; color: var(--hype); text-align: center; grid-column: 1 / -1;">Error fetching search results.</div>';
+  }
+}
+
+if (searchBtn) searchBtn.addEventListener('click', performSearch);
+if (searchInput) searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') performSearch();
+});
 
 /* ---------------- STREAK / XP ---------------- */
 let streak = 12;
@@ -289,7 +337,7 @@ async function fetchTVShows() {
 
 /* ---------------- CARD RENDERING LOGIC ---------------- */
 function renderCards(targetId: string, data: any[], _type?: string) {
-  const el = document.querySelector(`[data-scroll="${targetId}"]`);
+  const el = document.querySelector(`[data-scroll="${targetId}"]`) || document.getElementById(targetId);
   if (!el) return;
   
   el.innerHTML = data.map((d, i) => {

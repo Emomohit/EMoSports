@@ -42,7 +42,11 @@ button{font-family:inherit; cursor:pointer;}
 .nav-links button:hover{ color:var(--ink); }
 .nav-links button.active{ color:var(--ink); }
 .nav-links button.active::after{ content:''; position:absolute; bottom:-4px; left:0; right:0; height:2px; background:var(--prism-grad); border-radius:2px; }
-.nav-right{ display:flex; align-items:center; gap:16px; }
+.search-box{ display:flex; align-items:center; background:var(--navy-surface); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:0 12px; margin-right:12px; transition:all 0.2s;}
+.search-box:focus-within{ border-color:var(--teal); background:rgba(47,230,196,0.05); }
+.search-box input{ background:transparent; border:none; outline:none; color:var(--ink); font-family:inherit; font-size:13.5px; padding:8px 4px; width:180px; }
+.search-box input::placeholder{ color:var(--slate); }
+.nav-right{ display:flex; align-items:center; gap:8px; }
 .streak-pill{
   display:flex; align-items:center; gap:5px; background:var(--navy-surface); border:1px solid rgba(255,61,129,0.35);
   padding:6px 11px; border-radius:20px; font-size:13px; font-weight:700; color:var(--hype);

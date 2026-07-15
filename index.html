@@ -28,7 +28,10 @@
   </div>
   <div class="nav-right">
     <div class="streak-pill">🔥 <span id="streakCount">12</span></div>
-    <button class="icon-btn" aria-label="Search">🔍</button>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search movies...">
+      <button id="searchBtn" class="icon-btn" aria-label="Search">🔍</button>
+    </div>
     <button class="icon-btn" aria-label="Notifications">🔔<span class="notif-dot"></span></button>
     <div class="avatar-ring"><div class="avatar" title="Mohit">M</div></div>
   </div>
@@ -81,6 +84,15 @@
   <section class="section" style="margin-bottom:40px;">
     <div class="section-head"><div class="section-title">EmoSports Originals</div><div class="row-nav"><button data-target="originals-row" data-dir="-1">‹</button><button data-target="originals-row" data-dir="1">›</button></div></div>
     <div class="row-scroll" data-scroll="originals-row"></div>
+  </section>
+</div>
+
+<!-- ================= SEARCH PAGE ================= -->
+<div class="page hidden" id="page-search">
+  <div style="height:80px;"></div>
+  <section class="section" style="margin-top:12px;">
+    <div class="section-head"><div class="section-title" id="searchTitle">Search Results</div></div>
+    <div class="grid-layout" id="searchResults" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;"></div>
   </section>
 </div>
 
@@ -156,7 +168,7 @@
     <button class="clip-close" id="clipClose">✕</button>
     <div id="videoContainer" style="flex:1; width:100%; display:flex; align-items:center; justify-content:center; background:#000;">
        <video id="clipVideo" playsinline controls style="width:100%; height:100%; display:block;"></video>
-       <iframe id="clipIframe" style="width:100%; height:100%; border:none; display:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allowfullscreen></iframe>
+       <iframe id="clipIframe" style="width:100%; height:100%; border:none; display:none;" allowfullscreen></iframe>
        <img id="clipImg" src="" alt="" style="width:100%; height:100%; object-fit:cover;">
     </div>
     <div class="clip-caption" id="clipCaption"></div>
