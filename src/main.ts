@@ -535,14 +535,14 @@ document.querySelectorAll('.server-btn').forEach(btn => {
     if (!clipIframe) return;
     
     let url = '';
-    if (server === 'cineby') {
-       url = `https://cineby.gd/embed/${currentMediaType}/${currentTmdbId}`;
-    } else if (server === 'autoembed') {
+    if (server === 'autoembed') {
        url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
     } else if (server === 'vidlink') {
        url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=E50914&autoplay=false`;
     } else if (server === 'smashy') {
        url = `https://player.smashy.stream/${currentMediaType}/${currentTmdbId}`;
+    } else if (server === 'vidsrc') {
+       url = `https://vidsrc.me/embed/${currentMediaType}?tmdb=${currentTmdbId}`;
     }
     
     if (currentStreamLang) {
