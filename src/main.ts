@@ -207,9 +207,11 @@ const clipName = document.getElementById('clipName');
 let hlsInstance: any = null;
 let plyrPlayer: any = null;
 
+let currentTmdbId = '';
+let currentMediaType = '';
+
 // Ensure Plyr is available
 declare var Plyr: any;
-
 function initPlyr() {
   if (!plyrPlayer && clipVideo) {
     plyrPlayer = new Plyr(clipVideo, {
@@ -244,10 +246,26 @@ function closeClip() {
 document.getElementById('clipClose')?.addEventListener('click', closeClip);
 
 // Generic function to play a stream
-function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSrc?: string) {
+function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSrc?: string, tmdbId?: string, mediaType?: string) {
   if (!clipViewer) return;
   clipViewer.classList.remove('hidden');
   if (clipName) clipName.textContent = title;
+  
+  const serverSwitcher = document.getElementById('serverSwitcher');
+  if (serverSwitcher) {
+    if (tmdbId && mediaType) {
+      currentTmdbId = tmdbId;
+      currentMediaType = mediaType;
+      serverSwitcher.style.display = 'flex';
+      document.querySelectorAll('.server-btn').forEach((b, i) => {
+        if(i === 0) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    } else {
+      serverSwitcher.style.display = 'none';
+    }
+  }
+
   const clipMini = document.getElementById('clipMini') as HTMLImageElement;
   if (clipMini && imgSrc) {
     clipMini.src = imgSrc;
@@ -375,8 +393,11 @@ function renderCards(targetId: string, data: any[], _type?: string) {
     const streamAttr = d.streamUrl ? `data-stream="${d.streamUrl}"` : '';
     const iframeAttr = d.iframeSrc ? `data-iframe="${d.iframeSrc}"` : '';
     const imgUrl = d.imgSrc || `https://picsum.photos/seed/${d.img || (d.title.replace(/\s+/g,'').toLowerCase() + i)}/440/248`;
-    const clickAttrs = `${streamAttr} ${iframeAttr} data-title="${d.title}" data-img="${imgUrl}"`;
     const tag = d.tag || '';
+    
+    const tmdbIdAttr = d.raw?.id ? `data-tmdbid="${d.raw.id}"` : '';
+    const mediaTypeAttr = `data-mediatype="${d.raw?.media_type || (tag.includes('TV') ? 'tv' : 'movie')}"`;
+    const clickAttrs = `${streamAttr} ${iframeAttr} ${tmdbIdAttr} ${mediaTypeAttr} data-title="${d.title}" data-img="${imgUrl}"`;
 
     // All cards are now clickable with fallback image handler
     return `<div class="card live-card-playable" ${clickAttrs}>
@@ -397,8 +418,10 @@ document.body.addEventListener('click', (e) => {
   const iframeSrc = card.dataset.iframe;
   const title = card.dataset.title;
   const imgSrc = card.dataset.img;
+  const tmdbId = card.dataset.tmdbid;
+  const mediaType = card.dataset.mediatype;
   if (title && (streamUrl || iframeSrc)) {
-    playStream(title, streamUrl, iframeSrc, imgSrc);
+    playStream(title, streamUrl, iframeSrc, imgSrc, tmdbId, mediaType);
   }
 });
 
@@ -466,4 +489,24 @@ document.body.addEventListener('click', (e) => {
   const dir = parseInt(btn.dataset.dir || '1', 10);
   const row = document.querySelector(`[data-scroll="${targetRow}"]`);
   if (row) row.scrollBy({ left: dir * 480, behavior: 'smooth' });
+});
+
+/* ---------------- SERVER SWITCHER ---------------- */
+document.querySelectorAll('.server-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const server = btn.getAttribute('data-server');
+    const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
+    if (!clipIframe) return;
+    
+    if (server === 'autoembed') {
+       clipIframe.src = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+    } else if (server === 'multiembed') {
+       clipIframe.src = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
+    } else if (server === 'embedsu') {
+       clipIframe.src = `https://embed.su/embed/${currentMediaType}/${currentTmdbId}`;
+    }
+  });
 });

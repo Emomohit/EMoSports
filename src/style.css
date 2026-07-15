@@ -89,6 +89,12 @@ button{font-family:inherit; cursor:pointer;}
 .clip-tap-left{ left:0; } .clip-tap-right{ right:0; }
 .clip-caption{ position:absolute; bottom:18px; left:14px; right:14px; z-index:3; font-size:13px; color:#eee; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
 
+/* server switcher */
+.server-switcher { position:absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; display:flex; gap: 6px; background: rgba(0,0,0,0.6); padding: 4px; border-radius: 20px; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+.server-btn { background: transparent; border: none; color: var(--slate); font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 16px; cursor: pointer; transition: all 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.server-btn:hover { color: var(--ink); background: rgba(255,255,255,0.1); }
+.server-btn.active { color: var(--ink); background: var(--teal); box-shadow: 0 0 12px rgba(229,9,20,0.6); }
+
 /* ---------- HERO ---------- */
 .hero{ position:relative; height:95vh; min-height:600px; display:flex; align-items:flex-end; overflow:hidden; }
 .hero-bg{ position:absolute; inset:0; background-size:cover; background-position:top center; transition:opacity 1.1s ease; }
@@ -109,8 +115,13 @@ button{font-family:inherit; cursor:pointer;}
 .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
 .btn{ display:flex; align-items:center; gap:10px; padding:14px 32px; border:none; border-radius:6px; font-weight:800; font-size:16px; transition:all .2s ease; position:relative; overflow:visible; cursor:pointer;}
 .btn:active{ transform:scale(0.94); }
-.btn-primary{ background:var(--ink); color:var(--navy-deep); }
-.btn-primary:hover{ background:#e6e6e6; }
+.btn-primary{ background:var(--ink); color:var(--navy-deep); animation: pulseGlow 2s infinite; }
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+.btn-primary:hover{ background:#e6e6e6; animation: none; }
 .btn-secondary{ background:rgba(109, 109, 110, 0.7); color:var(--ink); backdrop-filter:blur(8px); }
 .btn-secondary:hover{ background:rgba(109, 109, 110, 0.9); }
 
