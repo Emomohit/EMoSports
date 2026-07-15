@@ -337,11 +337,23 @@ document.getElementById('playBtn')?.addEventListener('click', () => {
 });
 
 /* ---------------- BACKEND LOGIC: FETCH FRESH APIs ---------------- */
+let currentRegion = 'IN';
+
+const regionSelect = document.getElementById('contentRegion') as HTMLSelectElement;
+if (regionSelect) {
+  regionSelect.addEventListener('change', (e) => {
+    currentRegion = (e.target as HTMLSelectElement).value;
+    document.querySelectorAll('.row-scroll').forEach(el => el.innerHTML = '<div style="padding:40px; color: var(--slate); text-align:center;"><div class="spinner" style="margin:0 auto;"></div></div>');
+    init();
+  });
+}
+
 // 1. Fetch Indian Movies from TMDB API
 async function fetchMovies(genreId?: string, page = 1) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&primary_release_date.lte=${today}`;
+    const regionParam = currentRegion === 'IN' ? '&with_origin_country=IN' : '&with_original_language=en';
+    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}${regionParam}&sort_by=popularity.desc&page=${page}&language=en-US&primary_release_date.lte=${today}`;
     if (genreId) url += `&with_genres=${genreId}`;
     
     const res = await fetch(url);
@@ -366,7 +378,8 @@ async function fetchMovies(genreId?: string, page = 1) {
 async function fetchTVShows(page = 1) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&first_air_date.lte=${today}`);
+    const regionParam = currentRegion === 'IN' ? '&with_origin_country=IN' : '&with_original_language=en';
+    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}${regionParam}&sort_by=popularity.desc&page=${page}&language=en-US&first_air_date.lte=${today}`);
     const data = await res.json();
     if (!data || !data.results) return [];
     
