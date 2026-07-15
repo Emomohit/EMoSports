@@ -60,9 +60,9 @@ if (dropEl) {
 
 /* ---------------- HERO ROTATION ---------------- */
 const heroes = [
-  { title: "Aaj Tak Live (Proxied)", eyebrow: "Hindi · News", img: "https://upload.wikimedia.org/wikipedia/commons/2/28/Aaj_tak_logo.png", synopsis: "Watch Aaj Tak Live 24x7 for the latest breaking news.", streamUrl: "https://corsproxy.io/?url=https%3A%2F%2Ffeeds.intoday.in%2Faajtak%2Fmaster.m3u8" },
-  { title: "Red Bull TV", eyebrow: "Action · Sports", img: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/Red_Bull_TV_logo.svg/1200px-Red_Bull_TV_logo.svg.png", synopsis: "Experience the world of Red Bull with live action sports and events.", streamUrl: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8" },
-  { title: "Bloomberg TV", eyebrow: "Global · Finance", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Bloomberg_Television_logo.svg/1200px-Bloomberg_Television_logo.svg.png", synopsis: "24-hour global business and financial news.", streamUrl: "https://live.bloomberg.tv/hls/live/608358/a/index.m3u8" }
+  { title: "Deadpool & Wolverine", eyebrow: "Action · Comedy", img: "https://image.tmdb.org/t/p/original/9l1eZiJHmhr5jIlthMdJN5WYoff.jpg", synopsis: "Deadpool is offered a place in the Marvel Cinematic Universe by the Time Variance Authority.", iframeSrc: "https://embed.su/embed/movie/tt6263850" },
+  { title: "Dune: Part Two", eyebrow: "Sci-Fi · Epic", img: "https://image.tmdb.org/t/p/original/8b8R8l88Qje9dn9OE8ez05deCEP.jpg", synopsis: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.", iframeSrc: "https://embed.su/embed/movie/tt15239678" },
+  { title: "Oppenheimer", eyebrow: "Biography · Drama", img: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBRoOoA0i.jpg", synopsis: "The story of American scientist, J. Robert Oppenheimer, and his role in the development of the atomic bomb.", iframeSrc: "https://embed.su/embed/movie/tt15398776" }
 ];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
@@ -242,48 +242,14 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
 
 document.getElementById('playBtn')?.addEventListener('click', () => {
   const h = heroes[heroIdx];
-  playStream(h.title, h.streamUrl, undefined, h.img);
+  playStream(h.title, undefined, h.iframeSrc, h.img);
 });
 
-
 /* ---------------- BACKEND LOGIC: FETCH FRESH APIs ---------------- */
-
-// 1. Fetch Pluto TV Live Channels (100% Working, No CORS)
-async function fetchPlutoTV() {
-  try {
-    const response = await fetch('https://i.mjh.nz/PlutoTV/us.m3u8');
-    const text = await response.text();
-    const lines = text.split('\\n');
-    let channels = [];
-    let currentChannel: any = {};
-    for (let line of lines) {
-      if (line.startsWith('#EXTINF')) {
-        const titleMatch = line.match(/tvg-name="([^"]+)"/);
-        const logoMatch = line.match(/tvg-logo="([^"]+)"/);
-        currentChannel = {
-          title: titleMatch ? titleMatch[1] : 'Unknown Channel',
-          imgSrc: logoMatch ? logoMatch[1] : '',
-          tag: 'Live TV',
-          live: true
-        };
-      } else if (line.startsWith('http')) {
-        currentChannel.streamUrl = line.trim();
-        channels.push(currentChannel);
-        currentChannel = {};
-      }
-    }
-    // Filter out empty or bad ones and return
-    return channels.filter(c => c.streamUrl).slice(0, 100); 
-  } catch (err) {
-    console.error('Pluto TV fetch failed', err);
-    return [];
-  }
-}
-
-// 2. Fetch Fresh Movies from YTS API
+// 1. Fetch Fresh Movies from YTS API
 async function fetchMovies() {
   try {
-    const res = await fetch('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=20');
+    const res = await fetch('https://yts.mx/api/v2/list_movies.json?sort_by=download_count&limit=30');
     const data = await res.json();
     if (!data || !data.data || !data.data.movies) return [];
     
@@ -291,7 +257,7 @@ async function fetchMovies() {
       title: m.title,
       tag: (m.genres?.[0] || 'Action') + ' · Movie',
       live: false,
-      iframeSrc: m.yt_trailer_code ? `https://www.youtube.com/embed/${m.yt_trailer_code}?autoplay=1` : `https://vidsrc.net/embed/movie/${m.imdb_code}`,
+      iframeSrc: `https://embed.su/embed/movie/${m.imdb_code}`,
       imgSrc: m.medium_cover_image
     }));
   } catch (err) {
@@ -300,7 +266,7 @@ async function fetchMovies() {
   }
 }
 
-// 3. Fetch Top TV Shows from TVMaze API
+// 2. Fetch Top TV Shows from TVMaze API
 async function fetchTVShows() {
   try {
     const res = await fetch('https://api.tvmaze.com/shows');
@@ -309,7 +275,7 @@ async function fetchTVShows() {
       title: s.name,
       tag: (s.genres?.[0] || 'Drama') + ' · TV Show',
       live: false,
-      iframeSrc: `https://vidsrc.net/embed/tv/${s.externals?.imdb || ''}`,
+      iframeSrc: `https://embed.su/embed/tv/${s.externals?.imdb || ''}`,
       imgSrc: s.image?.medium || `https://picsum.photos/seed/${s.id}/440/248`
     }));
   } catch (err) {
@@ -357,8 +323,7 @@ document.body.addEventListener('click', (e) => {
 /* ---------------- INITIALIZE DATA ---------------- */
 async function init() {
   // Load dynamic Backend data from fresh APIs
-  const [plutoChannels, ytsMovies, tvShows] = await Promise.all([
-    fetchPlutoTV(),
+  const [ytsMovies, tvShows] = await Promise.all([
     fetchMovies(),
     fetchTVShows()
   ]);
@@ -370,22 +335,18 @@ async function init() {
   };
 
   // Populate UI Rows
-  renderCards('live-row', getSequential(plutoChannels, 0, 8), 'live');
   renderCards('trending-row', getSequential(ytsMovies, 0, 8), 'trending');
   renderCards('continue-row', getSequential(tvShows, 0, 4), 'continue');
 
   // Movies Page
   renderCards('movies-new', getSequential(ytsMovies, 8, 5), 'movies');
   renderCards('movies-action', getSequential(ytsMovies, 13, 4), 'movies');
-  renderCards('movies-romcom', getSequential(ytsMovies, 17, 3), 'movies');
+  renderCards('movies-romcom', getSequential(ytsMovies, 17, 4), 'movies');
 
   // TV Shows Page
   renderCards('tv-binge', getSequential(tvShows, 4, 4), 'tv');
   renderCards('tv-new', getSequential(tvShows, 8, 4), 'tv');
   renderCards('tv-fan', getSequential(tvShows, 12, 4), 'tv');
-
-  // Sports Page (using remaining Pluto TV live channels)
-  renderCards('sports-highlights', getSequential(plutoChannels, 8, 8), 'sports');
 
   // Originals - EmoLearners Instagram Embeds
   const emolearnersOriginals = [
@@ -396,7 +357,7 @@ async function init() {
   
   renderCards('originals-row', emolearnersOriginals, 'originals');
   renderCards('originals-full', emolearnersOriginals, 'originals');
-  renderCards('originals-soon', getSequential(ytsMovies, 0, 3), 'originals');
+  renderCards('originals-soon', getSequential(ytsMovies, 21, 3), 'originals');
 }
 
 init();
