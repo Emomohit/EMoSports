@@ -424,7 +424,7 @@ async function init() {
   
   renderCards('originals-row', emolearnersOriginals, 'originals');
   renderCards('originals-full', emolearnersOriginals, 'originals');
-  renderCards('originals-soon', getSequential(ytsMovies, 21, 3), 'originals');
+  renderCards('originals-soon', trendingMovies.slice(15, 18), 'originals');
 }
 
 init();
