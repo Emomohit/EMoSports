@@ -169,12 +169,12 @@
     <button class="player-settings-btn" id="playerSettingsBtn" title="Audio & Settings">⚙️</button>
     <div class="player-settings-menu hidden" id="playerSettingsMenu">
       <h4>AUDIO & LANGUAGE</h4>
-      <div style="font-size: 13px; color: #ccc; margin-bottom: 16px; line-height: 1.4; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px;">
-        💡 <b>How to get Hindi Audio:</b><br>
-        1. Start the video<br>
-        2. Click the <b>Gear Icon (⚙️) / CC</b> inside the player controls<br>
-        3. Select <b>Audio Track -> Hindi</b> (if available)
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn active" data-lang="hi">🎙️ Hindi Dubbed</button>
+        <button class="lang-btn" data-lang="en">🎙️ English</button>
+        <button class="lang-btn" data-lang="orig">🎙️ Original</button>
       </div>
+      <p id="langHint" style="font-size: 11px; color: var(--teal); margin: 6px 0 12px; display: none;">*Click ⚙️ CC inside player to confirm Hindi audio track.</p>
       <h4>SERVER OPTIONS (IF VIDEO FAILS)</h4>
       <div class="server-switcher">
         <button class="server-btn active" data-server="autoembed">Server 1 (AutoEmbed - Most Reliable)</button>

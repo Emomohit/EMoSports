@@ -545,4 +545,25 @@ if (playerSettingsBtn && playerSettingsMenu) {
     playerSettingsMenu.classList.toggle('hidden');
   });
 }
-
+/* ---------------- LANGUAGE SWITCHER LOGIC ---------------- */
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const lang = btn.getAttribute('data-lang');
+    const langHint = document.getElementById('langHint');
+    
+    if (lang === 'hi') {
+      if (langHint) langHint.style.display = 'block';
+      // Force switch to VidLink if they want Hindi, because it has best dual audio support
+      const vidlinkBtn = document.querySelector('.server-btn[data-server="vidlink"]') as HTMLElement;
+      if (vidlinkBtn) vidlinkBtn.click();
+    } else {
+      if (langHint) langHint.style.display = 'none';
+      // Switch back to AutoEmbed for English/Original
+      const autoembedBtn = document.querySelector('.server-btn[data-server="autoembed"]') as HTMLElement;
+      if (autoembedBtn) autoembedBtn.click();
+    }
+  });
+});
