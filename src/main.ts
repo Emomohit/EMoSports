@@ -60,9 +60,9 @@ if (dropEl) {
 
 /* ---------------- HERO ROTATION ---------------- */
 const heroes = [
-  { title: "Deadpool & Wolverine", eyebrow: "Action · Comedy", img: "https://image.tmdb.org/t/p/original/9l1eZiJHmhr5jIlthMdJN5WYoff.jpg", synopsis: "Deadpool is offered a place in the Marvel Cinematic Universe by the Time Variance Authority.", iframeSrc: "https://vidsrc.in/embed/movie/tt6263850" },
-  { title: "Dune: Part Two", eyebrow: "Sci-Fi · Epic", img: "https://image.tmdb.org/t/p/original/8b8R8l88Qje9dn9OE8ez05deCEP.jpg", synopsis: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.", iframeSrc: "https://vidsrc.in/embed/movie/tt15239678" },
-  { title: "Oppenheimer", eyebrow: "Biography · Drama", img: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBRoOoA0i.jpg", synopsis: "The story of American scientist, J. Robert Oppenheimer, and his role in the development of the atomic bomb.", iframeSrc: "https://vidsrc.in/embed/movie/tt15398776" }
+  { title: "Deadpool & Wolverine", eyebrow: "Action · Comedy", img: "https://image.tmdb.org/t/p/original/9l1eZiJHmhr5jIlthMdJN5WYoff.jpg", synopsis: "Deadpool is offered a place in the Marvel Cinematic Universe by the Time Variance Authority.", iframeSrc: "https://autoembed.co/movie/imdb/tt6263850" },
+  { title: "Dune: Part Two", eyebrow: "Sci-Fi · Epic", img: "https://image.tmdb.org/t/p/original/8b8R8l88Qje9dn9OE8ez05deCEP.jpg", synopsis: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge.", iframeSrc: "https://autoembed.co/movie/imdb/tt15239678" },
+  { title: "Oppenheimer", eyebrow: "Biography · Drama", img: "https://image.tmdb.org/t/p/original/fm6KqXpk3M2HVveHwCrBRoOoA0i.jpg", synopsis: "The story of American scientist, J. Robert Oppenheimer, and his role in the development of the atomic bomb.", iframeSrc: "https://autoembed.co/movie/imdb/tt15398776" }
 ];
 let heroIdx = 0;
 const heroBg = document.getElementById('heroBg');
@@ -260,7 +260,7 @@ async function fetchMovies() {
       title: m.title,
       tag: (m.genres?.[0] || 'Action') + ' · Movie',
       live: false,
-      iframeSrc: `https://vidsrc.in/embed/movie/${m.imdb_code}`,
+      iframeSrc: `https://autoembed.co/movie/imdb/${m.imdb_code}`,
       imgSrc: m.medium_cover_image
     }));
   } catch (err) {
@@ -278,7 +278,7 @@ async function fetchTVShows() {
       title: s.name,
       tag: (s.genres?.[0] || 'Drama') + ' · TV Show',
       live: false,
-      iframeSrc: `https://vidsrc.in/embed/tv/${s.externals?.imdb || ''}`,
+      iframeSrc: `https://autoembed.co/tv/imdb/${s.externals?.imdb || ''}`,
       imgSrc: s.image?.medium || `https://picsum.photos/seed/${s.id}/440/248`
     }));
   } catch (err) {
