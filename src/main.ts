@@ -101,7 +101,7 @@ function formatTMDB(results: any[], forceType: string) {
       poster: `${TMDB_IMG}${m.poster_path}`,
       backdrop: m.backdrop_path ? `${TMDB_IMG_LG}${m.backdrop_path}` : `${TMDB_IMG}${m.poster_path}`,
       mediaType: isTv ? 'tv' : 'movie',
-      iframeSrc: `https://autoembed.co/${isTv ? 'tv' : 'movie'}/tmdb/${m.id}`
+      iframeSrc: isTv ? `https://autoembed.co/tv/tmdb/${m.id}` : `https://www.2embed.cc/embed/${m.id}`
     };
   });
   
@@ -533,14 +533,14 @@ document.querySelectorAll('.server-btn').forEach(btn => {
     if (!clipIframe) return;
     
     let url = '';
-    if (server === 'autoembed') {
+    if (server === '2embed') {
+       url = currentMediaType === 'tv' ? `https://www.2embed.cc/embedtv/${currentTmdbId}&s=1&e=1` : `https://www.2embed.cc/embed/${currentTmdbId}`;
+    } else if (server === 'autoembed') {
        url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+    } else if (server === 'vidsrccc') {
+       url = `https://vidsrc.cc/v2/embed/${currentMediaType}/${currentTmdbId}`;
     } else if (server === 'vidlink') {
        url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=0a84ff&autoplay=false`;
-    } else if (server === 'multiembed') {
-       url = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
-    } else if (server === 'embedsu') {
-       url = `https://embed.su/embed/${currentMediaType}/${currentTmdbId}`;
     }
     
     clipIframe.src = url;
@@ -569,8 +569,8 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
       if (vidlinkBtn) vidlinkBtn.click();
     } else {
       if (langHint) langHint.style.display = 'none';
-      const autoembedBtn = document.querySelector('.server-btn[data-server="autoembed"]') as HTMLElement;
-      if (autoembedBtn) autoembedBtn.click();
+      const twoembedBtn = document.querySelector('.server-btn[data-server="2embed"]') as HTMLElement;
+      if (twoembedBtn) twoembedBtn.click();
     }
   });
 });
