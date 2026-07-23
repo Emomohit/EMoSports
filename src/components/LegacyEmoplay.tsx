@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
+import { initApp } from '../main';
 
 const LegacyEmoplay = () => {
   const isLoaded = useRef(false);
 
   useEffect(() => {
-    // Only load the script once the component mounts
+    // Only execute the script once the component mounts
     if (!isLoaded.current) {
       isLoaded.current = true;
-      import('../../src/main.ts').catch(err => console.error("Failed to load legacy script", err));
+      initApp().catch(err => console.error("Failed to initialize legacy app", err));
     }
   }, []);
 
