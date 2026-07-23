@@ -3,7 +3,7 @@ declare var Hls: any;
 declare var Plyr: any;
 
 const TMDB_API_KEY = '15d2ea6d0dc1d476efbca3eba2b9bbfb'; // Public key for demo
-const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_BASE = 'https://api.tmdb.org/3';
 const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 const TMDB_IMG_LG = 'https://image.tmdb.org/t/p/original';
 
