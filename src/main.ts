@@ -118,7 +118,7 @@ let MOCK_CATALOG: any = { rows: [] };
    UI RENDERING
    ========================================================================= */
 
-window.addEventListener("DOMContentLoaded", async () => {
+const initApp = async () => {
   renderShimmer();
   
   // Load data
@@ -145,7 +145,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
     loadCatalog('home');
   }, 1000);
-});
+};
+
+if (document.readyState === 'loading') {
+  window.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
 
 let heroIndex = 0, heroTimer: any = null;
 let currentHeroes: any[] = [];
