@@ -555,6 +555,10 @@ if (playerSettingsBtn && playerSettingsMenu) {
   });
 }
 
+// Expose functions globally for inline HTML onclick handlers
+(window as any).playStream = playStream;
+(window as any).openModal = openModal;
+
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
