@@ -145,6 +145,9 @@ export const initApp = async () => {
     }
     loadCatalog('home');
   }, 1000);
+
+  // Initialize event listeners
+  setupEventListeners();
 };
 
 let heroIndex = 0, heroTimer: any = null;
@@ -361,49 +364,107 @@ $("#modalOverlay")?.addEventListener("click", (e) => { if ((e.target as HTMLElem
 /* =========================================================================
    NAV & SEARCH LOGIC
    ========================================================================= */
-window.addEventListener("scroll", () => {
-  $("#mainNav")?.classList.toggle("scrolled", window.scrollY > 40);
-});
-
-$$(".nav-links a").forEach((link: any) => {
-  link.addEventListener("click", (e: Event) => {
-    e.preventDefault();
-    $$(".nav-links a").forEach((a: any) => a.classList.remove("active"));
-    link.classList.add("active");
-    loadCatalog(link.dataset.cat);
-    window.scrollTo({top: 0, behavior:"smooth"});
+function setupEventListeners() {
+  window.addEventListener("scroll", () => {
+    $("#mainNav")?.classList.toggle("scrolled", window.scrollY > 40);
   });
-});
 
-$("#searchToggle")?.addEventListener("click", () => {
-  $("#searchBox")?.classList.toggle("open");
-  ($("#searchInput") as HTMLInputElement)?.focus();
-});
+  $$(".nav-links a").forEach((link: any) => {
+    link.addEventListener("click", (e: Event) => {
+      e.preventDefault();
+      $$(".nav-links a").forEach((a: any) => a.classList.remove("active"));
+      link.classList.add("active");
+      loadCatalog(link.dataset.cat);
+      window.scrollTo({top: 0, behavior:"smooth"});
+    });
+  });
 
-let searchTimeout: any = null;
-$("#searchInput")?.addEventListener("input", async (e) => {
-  const q = (e.target as HTMLInputElement).value.trim();
-  if (searchTimeout) clearTimeout(searchTimeout);
-  
-  if (!q) { 
-      loadCatalog('home'); 
-      return; 
+  $("#searchToggle")?.addEventListener("click", () => {
+    $("#searchBox")?.classList.toggle("open");
+    ($("#searchInput") as HTMLInputElement)?.focus();
+  });
+
+  let searchTimeout: any = null;
+  $("#searchInput")?.addEventListener("input", async (e) => {
+    const q = (e.target as HTMLInputElement).value.trim();
+    if (searchTimeout) clearTimeout(searchTimeout);
+    
+    if (!q) { 
+        loadCatalog('home'); 
+        return; 
+    }
+    
+    searchTimeout = setTimeout(async () => {
+      flashProgress();
+      const results = await searchTMDB(q);
+      renderRows([{ name: `Results for "${q}"`, key:"search", items: results }], "search");
+    }, 600);
+  });
+
+  document.getElementById('clipClose')?.addEventListener('click', closeClip);
+
+  document.querySelectorAll('.server-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const server = btn.getAttribute('data-server');
+      const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
+      if (!clipIframe) return;
+      
+      let url = '';
+      if (server === '2embed') {
+         url = currentMediaType === 'tv' ? `https://www.2embed.cc/embedtv/${currentTmdbId}&s=1&e=1` : `https://www.2embed.cc/embed/${currentTmdbId}`;
+      } else if (server === 'autoembed') {
+         url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
+      } else if (server === 'vidsrccc') {
+         url = `https://vidsrc.cc/v2/embed/${currentMediaType}/${currentTmdbId}`;
+      } else if (server === 'vidlink') {
+         url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=0a84ff&autoplay=false`;
+      }
+      
+      clipIframe.src = url;
+    });
+  });
+
+  const playerSettingsBtn = document.getElementById('playerSettingsBtn');
+  const playerSettingsMenu = document.getElementById('playerSettingsMenu');
+  if (playerSettingsBtn && playerSettingsMenu) {
+    playerSettingsBtn.addEventListener('click', () => {
+      playerSettingsMenu.classList.toggle('hidden');
+    });
   }
-  
-  searchTimeout = setTimeout(async () => {
-    flashProgress();
-    const results = await searchTMDB(q);
-    renderRows([{ name: `Results for "${q}"`, key:"search", items: results }], "search");
-  }, 600);
-});
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const lang = btn.getAttribute('data-lang');
+      const langHint = document.getElementById('langHint');
+      
+      if (lang === 'hi') {
+        if (langHint) langHint.style.display = 'block';
+        const vidlinkBtn = document.querySelector('.server-btn[data-server="vidlink"]') as HTMLElement;
+        if (vidlinkBtn) vidlinkBtn.click();
+      } else {
+        if (langHint) langHint.style.display = 'none';
+        const twoembedBtn = document.querySelector('.server-btn[data-server="2embed"]') as HTMLElement;
+        if (twoembedBtn) twoembedBtn.click();
+      }
+    });
+  });
+}
 
 /* =========================================================================
    VIDEO PLAYER LOGIC (EXISTING)
    ========================================================================= */
-const clipViewer = document.getElementById('clipViewer');
-const clipImg = document.getElementById('clipImg') as HTMLImageElement;
-const clipVideo = document.getElementById('clipVideo') as HTMLVideoElement;
-const clipName = document.getElementById('clipName');
+const getClipElements = () => ({
+  clipViewer: document.getElementById('clipViewer'),
+  clipImg: document.getElementById('clipImg') as HTMLImageElement,
+  clipVideo: document.getElementById('clipVideo') as HTMLVideoElement,
+  clipName: document.getElementById('clipName')
+});
 let hlsInstance: any = null;
 let plyrPlayer: any = null;
 
@@ -411,6 +472,7 @@ let currentTmdbId = '';
 let currentMediaType = '';
 
 function initPlyr() {
+  const { clipVideo } = getClipElements();
   if (!plyrPlayer && clipVideo) {
     plyrPlayer = new Plyr(clipVideo, {
       controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'fullscreen'],
@@ -421,6 +483,7 @@ function initPlyr() {
 }
 
 function closeClip() {
+  const { clipViewer, clipVideo, clipImg } = getClipElements();
   if (clipViewer) clipViewer.classList.add('hidden');
   if (clipVideo) {
     if (plyrPlayer) plyrPlayer.stop();
@@ -441,9 +504,9 @@ function closeClip() {
   }
 }
 
-document.getElementById('clipClose')?.addEventListener('click', closeClip);
-
 function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSrc?: string, tmdbId?: string, mediaType?: string) {
+  const { clipViewer, clipName, clipImg, clipVideo } = getClipElements();
+  
   if (!clipViewer) return;
   clipViewer.classList.remove('hidden');
   if (clipName) clipName.textContent = title;
@@ -522,59 +585,9 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
   }
 }
 
-/* ---------------- PLAYER SETTINGS & LANGUAGE LOGIC ---------------- */
-document.querySelectorAll('.server-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    const server = btn.getAttribute('data-server');
-    const clipIframe = document.getElementById('clipIframe') as HTMLIFrameElement;
-    if (!clipIframe) return;
-    
-    let url = '';
-    if (server === '2embed') {
-       url = currentMediaType === 'tv' ? `https://www.2embed.cc/embedtv/${currentTmdbId}&s=1&e=1` : `https://www.2embed.cc/embed/${currentTmdbId}`;
-    } else if (server === 'autoembed') {
-       url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
-    } else if (server === 'vidsrccc') {
-       url = `https://vidsrc.cc/v2/embed/${currentMediaType}/${currentTmdbId}`;
-    } else if (server === 'vidlink') {
-       url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=0a84ff&autoplay=false`;
-    }
-    
-    clipIframe.src = url;
-  });
-});
-
-const playerSettingsBtn = document.getElementById('playerSettingsBtn');
-const playerSettingsMenu = document.getElementById('playerSettingsMenu');
-if (playerSettingsBtn && playerSettingsMenu) {
-  playerSettingsBtn.addEventListener('click', () => {
-    playerSettingsMenu.classList.toggle('hidden');
-  });
-}
-
 // Expose functions globally for inline HTML onclick handlers
 (window as any).playStream = playStream;
 (window as any).openModal = openModal;
 
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    const lang = btn.getAttribute('data-lang');
-    const langHint = document.getElementById('langHint');
-    
-    if (lang === 'hi') {
-      if (langHint) langHint.style.display = 'block';
-      const vidlinkBtn = document.querySelector('.server-btn[data-server="vidlink"]') as HTMLElement;
-      if (vidlinkBtn) vidlinkBtn.click();
-    } else {
-      if (langHint) langHint.style.display = 'none';
-      const twoembedBtn = document.querySelector('.server-btn[data-server="2embed"]') as HTMLElement;
-      if (twoembedBtn) twoembedBtn.click();
-    }
-  });
-});
+/* ---------------- PLAYER SETTINGS & LANGUAGE LOGIC ---------------- */
+
