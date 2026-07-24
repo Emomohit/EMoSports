@@ -1,10 +1,12 @@
-import LegacyEmoplay from './components/LegacyEmoplay.tsx';
-import Navbar from './components/Navbar.tsx';
-import Footer from './components/Footer.tsx';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Loader from './components/Loader';
+import LegacyEmoplay from './components/LegacyEmoplay';
 
 function App() {
   return (
     <>
+      <Loader />
       <Navbar />
       <LegacyEmoplay />
       <Footer />
