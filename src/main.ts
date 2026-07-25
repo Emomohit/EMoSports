@@ -2,17 +2,15 @@
 declare var Hls: any;
 declare var Plyr: any;
 
-const TMDB_API_KEY = '15d2ea6d0dc1d476efbca3eba2b9bbfb'; // Public key for demo
-const TMDB_BASE = 'https://api.tmdb.org/3';
-const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
-const TMDB_IMG_LG = 'https://image.tmdb.org/t/p/original';
+import { fetchMovies, fetchTVShows, searchTMDB } from './services/tmdb';
+import type { MediaItem } from './services/tmdb';
 
 const $ = (sel: string) => document.querySelector(sel);
 const $$ = (sel: string) => Array.from(document.querySelectorAll(sel));
 const PLAY_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
 const INFO_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
 
-let allLoadedItems: any[] = []; // Cache to lookup items for modals
+let allLoadedItems: MediaItem[] = []; // Cache to lookup items for modals
 let myListIds = new Set<number>();
 
 function showToast(msg: string) {
@@ -31,87 +29,6 @@ function flashProgress() {
   setTimeout(() => { bar.style.opacity = "0"; setTimeout(()=>bar.style.width="0",350); }, 500);
 }
 
-const PALETTES = [
-  ["#2b2d33","#0d0e10"], ["#3a3226","#100e0a"], ["#243330","#0b100f"],
-  ["#332b3a","#100d13"], ["#2f2a24","#0f0d0a"], ["#26303a","#0b0e11"],
-  ["#3a2b2b","#120b0b"], ["#2a3226","#0c0f0a"], ["#302a3a","#0f0d13"],
-  ["#3a3430","#120f0c"], ["#293a3a","#0a1010"], ["#3a2f2b","#120e0b"],
-];
-function posterStyle(seed: number) {
-  const [c1, c2] = PALETTES[seed % PALETTES.length];
-  const angle = 100 + (seed * 11) % 70;
-  return `linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`;
-}
-
-/* =========================================================================
-   TMDB API FETCHERS
-   ========================================================================= */
-async function fetchMovies(genreId?: string, page = 1) {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    let url = `${TMDB_BASE}/discover/movie?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&primary_release_date.lte=${today}`;
-    if (genreId) url += `&with_genres=${genreId}`;
-    
-    const res = await fetch(url);
-    const data = await res.json();
-    return formatTMDB(data.results, 'movie');
-  } catch (err) {
-    return [];
-  }
-}
-
-async function fetchTVShows(page = 1) {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_origin_country=IN&sort_by=popularity.desc&page=${page}&language=en-US&first_air_date.lte=${today}`);
-    const data = await res.json();
-    return formatTMDB(data.results, 'tv');
-  } catch (err) {
-    return [];
-  }
-}
-
-async function searchTMDB(query: string) {
-  try {
-    const res = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`);
-    const data = await res.json();
-    return formatTMDB(data.results.filter((i: any) => i.media_type !== 'person'), '');
-  } catch (err) {
-    return [];
-  }
-}
-
-function formatTMDB(results: any[], forceType: string) {
-  if (!results) return [];
-  const items = results.filter((m: any) => m.poster_path).map((m: any) => {
-    const isTv = forceType === 'tv' || m.media_type === 'tv';
-    return {
-      id: m.id,
-      title: m.title || m.name,
-      year: (m.release_date || m.first_air_date || '2024').substring(0,4),
-      rating: m.adult ? '18+' : '16+',
-      genres: [isTv ? 'TV Show' : 'Movie'],
-      match: Math.floor(Math.random() * 20) + 80,
-      duration: isTv ? '1 Season' : 'Film',
-      grad: posterStyle(m.id),
-      desc: m.overview || "Experience the magic of cinema.",
-      cast: "Cast info unavailable.",
-      progress: 0,
-      isNew: m.popularity > 1000,
-      poster: `${TMDB_IMG}${m.poster_path}`,
-      backdrop: m.backdrop_path ? `${TMDB_IMG_LG}${m.backdrop_path}` : `${TMDB_IMG}${m.poster_path}`,
-      mediaType: isTv ? 'tv' : 'movie',
-      iframeSrc: isTv ? `https://autoembed.co/tv/tmdb/${m.id}` : `https://www.2embed.cc/embed/${m.id}`
-    };
-  });
-  
-  // Update cache
-  items.forEach((i: any) => {
-    if (!allLoadedItems.find(x => x.id === i.id)) allLoadedItems.push(i);
-  });
-  return items;
-}
-
 let MOCK_CATALOG: any = { rows: [] };
 
 /* =========================================================================
@@ -121,12 +38,18 @@ let MOCK_CATALOG: any = { rows: [] };
 export const initApp = async () => {
   renderShimmer();
   
-  // Load data
+  // Load data from TMDB service
   const [movies, action, tv, newTv] = await Promise.all([
     fetchMovies('', 1), fetchMovies('28', 1),
     fetchTVShows(1), fetchTVShows(2)
   ]);
   
+  // Populate items cache for modal lookups
+  const allFetched = [...movies, ...action, ...tv, ...newTv];
+  allFetched.forEach(item => {
+    if (!allLoadedItems.find(x => x.id === item.id)) allLoadedItems.push(item);
+  });
+
   MOCK_CATALOG.rows = [
     { name: "Top 10 Today", key: "top10", items: movies.slice(0, 10) },
     { name: "Trending Movies", key: "movies", items: movies.slice(10, 20) },
@@ -345,7 +268,7 @@ function openModal(id: number) {
   $("#modalCloseBtn")?.addEventListener("click", closeModal);
   $("#modalPlay")?.addEventListener("click", () => {
       closeModal();
-      playStream(item.title, undefined, item.iframeSrc, item.backdrop, item.id, item.mediaType);
+      playStream(item.title, undefined, item.iframeSrc, item.backdrop, String(item.id), item.mediaType);
   });
   $("#modalList")?.addEventListener("click", () => {
     if (myListIds.has(item.id)) myListIds.delete(item.id); else myListIds.add(item.id);
