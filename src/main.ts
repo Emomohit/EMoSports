@@ -4,27 +4,7 @@ declare var Plyr: any;
 
 import { fetchMovies, fetchTVShows, searchTMDB } from './services/tmdb';
 import { allLoadedItems, myListIds } from './services/store';
-
-const $ = (sel: string) => document.querySelector(sel);
-const $$ = (sel: string) => Array.from(document.querySelectorAll(sel));
-const PLAY_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-const INFO_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
-
-function showToast(msg: string) {
-  const t = $("#toast");
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2200);
-}
-
-function flashProgress() {
-  const bar = $("#topProgress") as HTMLElement;
-  if (!bar) return;
-  bar.style.opacity = "1"; bar.style.width = "30%";
-  setTimeout(() => { bar.style.width = "100%"; }, 120);
-  setTimeout(() => { bar.style.opacity = "0"; setTimeout(()=>bar.style.width="0",350); }, 500);
-}
+import { $, $$, PLAY_SVG, INFO_SVG, showToast, flashProgress } from './utils/ui-helpers';
 
 let MOCK_CATALOG: any = { rows: [] };
 
