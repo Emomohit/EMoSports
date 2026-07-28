@@ -21,8 +21,102 @@ export const initApp = async () => {
     fetchTVShows(1), fetchTVShows(2)
   ]);
   
+  // India's Got Latent Custom Mock Data
+  const latentEpisodes: any[] = [
+    {
+      id: 999901,
+      title: "India's Got Latent - EP 1",
+      year: "2026",
+      rating: "9.9",
+      match: "99% Match",
+      duration: "1h 45m",
+      desc: "The very first episode of India's Got Latent Season 2 featuring Alia Bhatt, Sharvari, and Ashish Solanki.",
+      poster: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg",
+      backdrop: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg",
+      iframeSrc: "https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1",
+      mediaType: "tv",
+      genres: ["Comedy", "Reality"],
+      cast: ["Samay Raina", "Alia Bhatt", "Ashish Solanki"],
+      director: "Samay Raina",
+      grad: "linear-gradient(135deg, #2b2d33 0%, #0d0e10 100%)",
+      videoUrl: ""
+    },
+    {
+      id: 999902,
+      title: "India's Got Latent - EP 2",
+      year: "2026",
+      rating: "9.8",
+      match: "98% Match",
+      duration: "1h 30m",
+      desc: "Episode 2 of Season 2 featuring Chandan Prabhakar, Kiku Sharda, and Haarsh Limbachiyaa.",
+      poster: "https://i.ytimg.com/vi/1r_090_0O2M/maxresdefault.jpg",
+      backdrop: "https://i.ytimg.com/vi/1r_090_0O2M/maxresdefault.jpg",
+      iframeSrc: "https://www.youtube.com/embed/1r_090_0O2M?autoplay=1",
+      mediaType: "tv",
+      genres: ["Comedy", "Reality"],
+      cast: ["Samay Raina", "Kiku Sharda"],
+      director: "Samay Raina",
+      grad: "linear-gradient(135deg, #2b2d33 0%, #0d0e10 100%)",
+      videoUrl: ""
+    },
+    {
+      id: 999903,
+      title: "India's Got Latent - EP 3",
+      year: "2026",
+      rating: "9.7",
+      match: "97% Match",
+      duration: "1h 25m",
+      desc: "Episode 3 of Season 2 full of comedy and latent talent.",
+      poster: "https://i.ytimg.com/vi/vBw9jQp749k/maxresdefault.jpg",
+      backdrop: "https://i.ytimg.com/vi/vBw9jQp749k/maxresdefault.jpg",
+      iframeSrc: "https://www.youtube.com/embed/vBw9jQp749k?autoplay=1",
+      mediaType: "tv",
+      genres: ["Comedy", "Reality"],
+      cast: ["Samay Raina", "Various"],
+      director: "Samay Raina",
+      grad: "linear-gradient(135deg, #2b2d33 0%, #0d0e10 100%)",
+      videoUrl: ""
+    },
+    {
+      id: 999904,
+      title: "India's Got Latent - EP 4",
+      year: "2026",
+      rating: "9.8",
+      match: "99% Match",
+      duration: "1h 40m",
+      desc: "The highly anticipated Episode 4 of Season 2 featuring more chaotic talent evaluations.",
+      poster: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg", // Using EP1 thumbnail as placeholder since EP4 is unreleased
+      backdrop: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg",
+      iframeSrc: "https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1",
+      mediaType: "tv",
+      genres: ["Comedy", "Reality"],
+      cast: ["Samay Raina", "Guest Judges"],
+      director: "Samay Raina",
+      grad: "linear-gradient(135deg, #2b2d33 0%, #0d0e10 100%)",
+      videoUrl: ""
+    },
+    {
+      id: 999905,
+      title: "India's Got Latent - Bonus EP 1",
+      year: "2026",
+      rating: "9.9",
+      match: "99% Match",
+      duration: "1h 50m",
+      desc: "Members Only Bonus Episode featuring Raghav Juyal, Munawar Faruqui, Niharika NM, and Rohan Joshi.",
+      poster: "https://i.ytimg.com/vi/1r_090_0O2M/maxresdefault.jpg", // Placeholder thumbnail
+      backdrop: "https://i.ytimg.com/vi/1r_090_0O2M/maxresdefault.jpg",
+      iframeSrc: "https://www.youtube.com/embed/1r_090_0O2M?autoplay=1",
+      mediaType: "tv",
+      genres: ["Comedy", "Reality", "Exclusive"],
+      cast: ["Samay Raina", "Raghav Juyal", "Munawar Faruqui", "Niharika NM", "Rohan Joshi"],
+      director: "Samay Raina",
+      grad: "linear-gradient(135deg, #2b2d33 0%, #0d0e10 100%)",
+      videoUrl: ""
+    }
+  ];
+
   // Populate items cache for modal lookups
-  const allFetched = [...movies, ...action, ...tv, ...newTv];
+  const allFetched = [...movies, ...action, ...tv, ...newTv, ...latentEpisodes];
   allFetched.forEach(item => {
     if (!allLoadedItems.find(x => x.id === item.id)) allLoadedItems.push(item);
   });
@@ -30,6 +124,7 @@ export const initApp = async () => {
   MOCK_CATALOG.rows = [
     { name: "Top 10 Today", key: "top10", items: movies.slice(0, 10) },
     { name: "Trending Movies", key: "movies", items: movies.slice(10, 20) },
+    { name: "India's Got Latent 🔥", key: "latent", items: latentEpisodes },
     { name: "Binge-Worthy TV Shows", key: "series", items: tv.slice(0, 10) },
     { name: "Action & Adventure", key: "movies", items: action.slice(0, 10) },
     { name: "New Releases", key: "new", items: newTv.slice(0, 10) }
