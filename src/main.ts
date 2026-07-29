@@ -3,7 +3,7 @@ declare var Hls: any;
 declare var Plyr: any;
 
 import { fetchMovies, fetchTVShows, searchTMDB } from './services/tmdb';
-import { allLoadedItems, myListIds } from './services/store';
+import { allLoadedItems, myListIds, toggleMyList } from './services/store';
 import { $, $$, PLAY_SVG, INFO_SVG, showToast, flashProgress } from './utils/ui-helpers';
 
 let MOCK_CATALOG: any = { rows: [] };
@@ -286,9 +286,9 @@ function buildCard(item: any) {
   });
   wrap.querySelector(".card-add")?.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (myListIds.has(item.id)) { myListIds.delete(item.id); showToast(`Removed "${item.title}" from My List`); }
-    else { myListIds.add(item.id); showToast(`Added "${item.title}" to My List`); }
-    (e.currentTarget as HTMLElement).innerHTML = myListIds.has(item.id) ? "&#10003;" : "+";
+    const isAdded = toggleMyList(item.id);
+    showToast(isAdded ? `Added "${item.title}" to My List` : `Removed "${item.title}" from My List`);
+    (e.currentTarget as HTMLElement).innerHTML = isAdded ? "&#10003;" : "+";
   });
   return wrap;
 }
@@ -343,9 +343,9 @@ function openModal(id: number) {
       playStream(item.title, undefined, item.iframeSrc, item.backdrop, String(item.id), item.mediaType);
   });
   $("#modalList")?.addEventListener("click", () => {
-    if (myListIds.has(item.id)) myListIds.delete(item.id); else myListIds.add(item.id);
+    const isAdded = toggleMyList(item.id);
     const mlist = $("#modalList");
-    if (mlist) mlist.innerHTML = myListIds.has(item.id) ? "&#10003; In My List" : "+ My List";
+    if (mlist) mlist.innerHTML = isAdded ? "&#10003; In My List" : "+ My List";
   });
   $$(".modal-mini").forEach((el: any) => el.addEventListener("click", () => openModal(+el.dataset.id)));
 }
