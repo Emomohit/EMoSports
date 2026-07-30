@@ -19,9 +19,9 @@ const VideoPlayer = () => {
           <p id="langHint" style={{ fontSize: '11px', color: 'var(--accent)', margin: '6px 0 12px', display: 'none' }}>*Click ⚙️ CC inside player to confirm Hindi audio track.</p>
           <h4>SERVER OPTIONS (IF VIDEO FAILS)</h4>
           <div className="server-switcher">
-            <button className="server-btn active" data-server="2embed">Server 1 (2embed - Recommended)</button>
-            <button className="server-btn" data-server="autoembed">Server 2 (AutoEmbed)</button>
-            <button className="server-btn" data-server="vidsrccc">Server 3 (VidSrc.cc)</button>
+            <button className="server-btn active" data-server="vidsrcto">Server 1 (VidSrc To - Fast)</button>
+            <button className="server-btn" data-server="vidsrcme">Server 2 (VidSrc Me - Alt)</button>
+            <button className="server-btn" data-server="multiembed">Server 3 (MultiEmbed - HD)</button>
             <button className="server-btn" data-server="vidlink">Server 4 (VidLink - Dual Audio)</button>
           </div>
         </div>

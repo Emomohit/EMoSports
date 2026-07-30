@@ -408,12 +408,12 @@ function setupEventListeners() {
       if (!clipIframe) return;
       
       let url = '';
-      if (server === '2embed') {
-         url = currentMediaType === 'tv' ? `https://www.2embed.cc/embedtv/${currentTmdbId}&s=1&e=1` : `https://www.2embed.cc/embed/${currentTmdbId}`;
-      } else if (server === 'autoembed') {
-         url = `https://autoembed.co/${currentMediaType}/tmdb/${currentTmdbId}`;
-      } else if (server === 'vidsrccc') {
-         url = `https://vidsrc.cc/v2/embed/${currentMediaType}/${currentTmdbId}`;
+      if (server === 'vidsrcto') {
+         url = `https://vidsrc.to/embed/${currentMediaType}/${currentTmdbId}`;
+      } else if (server === 'vidsrcme') {
+         url = currentMediaType === 'tv' ? `https://vidsrc.me/embed/tv?tmdb=${currentTmdbId}&season=1&episode=1` : `https://vidsrc.me/embed/movie?tmdb=${currentTmdbId}`;
+      } else if (server === 'multiembed') {
+         url = `https://multiembed.mov/?video_id=${currentTmdbId}&tmdb=1`;
       } else if (server === 'vidlink') {
          url = `https://vidlink.pro/${currentMediaType}/${currentTmdbId}?primaryColor=0a84ff&autoplay=false`;
       }
