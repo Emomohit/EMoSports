@@ -507,7 +507,10 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
   if (clipName) clipName.textContent = title;
   
   const playerSettingsBtn = document.getElementById('playerSettingsBtn');
-  if (tmdbId && mediaType) {
+  // Check if tmdbId is valid (not a mock custom ID)
+  const isRealTmdb = tmdbId && parseInt(tmdbId) < 900000;
+
+  if (isRealTmdb && mediaType) {
     currentTmdbId = tmdbId;
     currentMediaType = mediaType;
     if (playerSettingsBtn) playerSettingsBtn.style.display = 'block';
@@ -541,10 +544,10 @@ function playStream(title: string, streamUrl?: string, iframeSrc?: string, imgSr
     if (plyrContainer) plyrContainer.style.display = 'none';
     
     if (clipIframe) {
-      if (tmdbId) {
+      if (isRealTmdb) {
          const activeServerBtn = document.querySelector('.server-btn.active') as HTMLElement;
          if (activeServerBtn) activeServerBtn.click();
-      } else {
+      } else if (iframeSrc) {
          clipIframe.src = iframeSrc;
       }
       clipIframe.style.display = 'block';
