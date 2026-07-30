@@ -21,6 +21,27 @@ export const initApp = async () => {
     fetchTVShows(1), fetchTVShows(2)
   ]);
   
+  // Inject Spider-Man: Brand New Day (2026) as the main Hero item
+  const brandNewDay = {
+    id: 999999,
+    title: "Spider-Man: Brand New Day",
+    year: "2026",
+    rating: "9.8",
+    match: "99% Match",
+    duration: "2h 15m",
+    desc: "Peter Parker swings into a brand new era, facing unprecedented threats in New York City while balancing his dual life.",
+    poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", // High quality placeholder
+    backdrop: "https://image.tmdb.org/t/p/original/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
+    iframeSrc: "https://www.youtube.com/embed/t06RUxPbp_c?autoplay=1",
+    mediaType: "movie",
+    genres: ["Action", "Adventure", "Sci-Fi"],
+    cast: ["Tom Holland", "Zendaya", "Sydney Sweeney"],
+    director: "Destin Daniel Cretton",
+    grad: "linear-gradient(135deg, #7b1e1e 0%, #0d0e10 100%)",
+    videoUrl: ""
+  };
+  movies.unshift(brandNewDay as any);
+  
   // India's Got Latent Custom Mock Data
   const latentEpisodes: any[] = [
     {
