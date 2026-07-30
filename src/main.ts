@@ -444,8 +444,8 @@ function setupEventListeners() {
         if (vidlinkBtn) vidlinkBtn.click();
       } else {
         if (langHint) langHint.style.display = 'none';
-        const twoembedBtn = document.querySelector('.server-btn[data-server="2embed"]') as HTMLElement;
-        if (twoembedBtn) twoembedBtn.click();
+        const defaultServerBtn = document.querySelector('.server-btn[data-server="vidsrcto"]') as HTMLElement;
+        if (defaultServerBtn) defaultServerBtn.click();
       }
     });
   });
