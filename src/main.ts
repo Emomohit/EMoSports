@@ -23,16 +23,16 @@ export const initApp = async () => {
   
   // Inject Spider-Man: Brand New Day (2026) as the main Hero item
   const brandNewDay = {
-    id: 999999,
+    id: 969681, // Real TMDB ID for the full movie
     title: "Spider-Man: Brand New Day",
     year: "2026",
     rating: "9.8",
     match: "99% Match",
     duration: "2h 15m",
-    desc: "Peter Parker swings into a brand new era, facing unprecedented threats in New York City while balancing his dual life.",
-    poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", // High quality placeholder
-    backdrop: "https://image.tmdb.org/t/p/original/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
-    iframeSrc: "https://www.youtube.com/embed/t06RUxPbp_c?autoplay=1",
+    desc: "Fighting crime full-time as Spider-Man in a world that doesn't remember him—and the pressure of seeing his old friends move on without him—sparks a change in Peter Parker.",
+    poster: "https://image.tmdb.org/t/p/w500/iPOn6DinuVyLY17YM9mKuPofV08.jpg",
+    backdrop: "https://image.tmdb.org/t/p/original/vjMvFSmGUxEtqVdaZgvFee9XkZl.jpg",
+    iframeSrc: "", // Clear this so it uses the full movie API servers
     mediaType: "movie",
     genres: ["Action", "Adventure", "Sci-Fi"],
     cast: ["Tom Holland", "Zendaya", "Sydney Sweeney"],
@@ -189,7 +189,7 @@ function renderHero(heroes: any[]) {
         </div>
         <p class="hero-desc">${h.desc.length > 150 ? h.desc.substring(0, 150) + '...' : h.desc}</p>
         <div class="hero-actions">
-          <button class="btn btn-play" onclick="playStream('${h.title.replace(/'/g, "\\'")}', undefined, '${h.iframeSrc}', '${h.backdrop}', '${h.id}', '${h.mediaType}')">${PLAY_SVG} Play</button>
+          <button class="btn btn-play" onclick="playStream('${h.title.replace(/'/g, "\\'")}', undefined, '${h.iframeSrc || ''}', '${h.backdrop}', '${h.id}', '${h.mediaType}')">${PLAY_SVG} Play</button>
           <button class="btn btn-info" onclick="openModal(${h.id})">${INFO_SVG} More Info</button>
         </div>
       </div>
