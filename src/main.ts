@@ -419,6 +419,54 @@ function setupEventListeners() {
 
   document.getElementById('clipClose')?.addEventListener('click', closeClip);
 
+  // 3D Mouse Parallax for Hero Section
+  const heroSection = document.getElementById('heroSection');
+  if (heroSection) {
+    heroSection.addEventListener('mousemove', (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      const x = (e.clientX / innerWidth - 0.5) * 2; // -1 to 1
+      const y = (e.clientY / innerHeight - 0.5) * 2;
+      
+      const activeSlide = heroSection.querySelector('.hero-slide.active');
+      if (activeSlide) {
+         const bg = activeSlide.querySelector('.hero-bg-layer') as HTMLElement;
+         const content = activeSlide.querySelector('.hero-content') as HTMLElement;
+         if (bg) bg.style.transform = `scale(1.08) translate(${x * -15}px, ${y * -15}px)`;
+         if (content) content.style.transform = `translateZ(60px) rotateX(${y * -2}deg) rotateY(${x * 2}deg) translate(${x * 10}px, ${y * 10}px)`;
+      }
+    });
+    heroSection.addEventListener('mouseleave', () => {
+      const activeSlide = heroSection.querySelector('.hero-slide.active');
+      if (activeSlide) {
+         const bg = activeSlide.querySelector('.hero-bg-layer') as HTMLElement;
+         const content = activeSlide.querySelector('.hero-content') as HTMLElement;
+         if (bg) bg.style.transform = `scale(1.08) translate(0px, 0px)`;
+         if (content) content.style.transform = `translateZ(60px) rotateX(0deg) rotateY(0deg) translate(0px, 0px)`;
+      }
+    });
+  }
+
+  // Intersection Observer for staggered row animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+  
+  // Attach observer to existing and future rows
+  const observeRows = () => {
+    document.querySelectorAll('.row:not(.visible)').forEach(row => {
+      observer.observe(row);
+    });
+  };
+  
+  // Run initially and set an interval to catch dynamically added rows
+  observeRows();
+  setInterval(observeRows, 1000);
+
   document.querySelectorAll('.server-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
