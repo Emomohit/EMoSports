@@ -5,6 +5,7 @@ const router = Router();
 
 // Public routes — no auth required for browsing content
 router.get('/trending', content.getTrending);
+router.get('/sports', content.getSportsMatches);
 router.get('/genres', content.getGenres);
 router.get('/genre/:id', content.getByGenre);
 router.get('/search', content.searchContent);

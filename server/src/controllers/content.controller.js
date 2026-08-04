@@ -62,3 +62,37 @@ export const getGenres = async (req, res, next) => {
     next(err);
   }
 };
+
+// ─── GET /api/content/sports ──────────────────────────────────────────────────
+export const getSportsMatches = async (req, res, next) => {
+  try {
+    const sportsData = [
+      {
+        id: 'match-1',
+        title: 'ICC T20 World Cup Final',
+        category: 'Cricket',
+        team1: { name: 'India', flag: '🇮🇳', score: '176/7 (20.0)' },
+        team2: { name: 'South Africa', flag: '🇿🇦', score: '169/8 (20.0)' },
+        status: 'LIVE',
+        timeOrPeriod: 'Final Over · Need 16 off 6',
+        thumbnail: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=1200',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      },
+      {
+        id: 'match-2',
+        title: 'UEFA Champions League Final',
+        category: 'Football',
+        team1: { name: 'Real Madrid', flag: '🇪🇸', score: '2' },
+        team2: { name: 'Borussia Dortmund', flag: '🇩🇪', score: '0' },
+        status: 'LIVE',
+        timeOrPeriod: '88th Minute',
+        thumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+      },
+    ];
+    return successResponse(res, sportsData, 'Live sports matches fetched');
+  } catch (err) {
+    next(err);
+  }
+};
+
