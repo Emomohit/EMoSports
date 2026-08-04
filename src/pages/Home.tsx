@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import Row from '../components/Row';
+import SportsRow from '../components/SportsRow';
 import { contentApi } from '../services/api';
 import { fetchMovies, fetchTVShows } from '../services/tmdb';
 
@@ -134,6 +135,8 @@ const Home = () => {
       style={{ paddingBottom: '90px' }}
     >
       <Hero slides={data.movies.slice(0, 5)} />
+
+      <SportsRow />
 
       <div className="rows">
         <Row title="🔥 Top 10 Today"          items={data.movies.slice(0, 10)} isRanked={true} />
