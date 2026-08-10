@@ -79,17 +79,26 @@ const VideoPlayer = () => {
       setSelectedServerIndex(0);
 
       // Determine best source
-      let src = media.videoUrl;
+      let src = media.videoUrl || media.trailerUrl;
       if (src && src.startsWith('http://')) {
         src = src.replace('http://', 'https://');
       }
 
       if (src) {
-        setActiveMode('html5');
-        setActiveSrc(src);
-      } else if (media.trailerKey || media.trailerUrl) {
+        if (src.includes('youtube.com') || src.includes('youtu.be')) {
+          setActiveMode('youtube');
+          let ytSrc = src;
+          if (!ytSrc.includes('autoplay=1')) {
+            ytSrc += ytSrc.includes('?') ? '&autoplay=1' : '?autoplay=1';
+          }
+          setActiveSrc(ytSrc);
+        } else {
+          setActiveMode('html5');
+          setActiveSrc(src);
+        }
+      } else if (media.trailerKey) {
         setActiveMode('youtube');
-        setActiveSrc(media.trailerUrl || `https://www.youtube.com/embed/${media.trailerKey}?autoplay=1&rel=0&modestbranding=1`);
+        setActiveSrc(`https://www.youtube.com/embed/${media.trailerKey}?autoplay=1&rel=0&modestbranding=1`);
       } else if (media.iframeSrc) {
         setActiveMode('iframe');
         setActiveSrc(media.iframeSrc);
