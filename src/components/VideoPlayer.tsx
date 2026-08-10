@@ -285,7 +285,9 @@ const VideoPlayer = () => {
                 src={activeSrc}
                 className="w-full h-full object-contain cursor-pointer"
                 onClick={togglePlay}
+                controls
                 autoPlay
+                preload="auto"
                 playsInline
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
