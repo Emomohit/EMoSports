@@ -7,6 +7,24 @@ import { contentApi } from '../services/api';
 import { fetchMovies, fetchTVShows } from '../services/tmdb';
 
 // ─── Pinned featured items ───────────────────────────────────────────────────
+const LATENT_BONUS_EP2 = {
+  id: 999900,
+  tmdbId: 999900,
+  title: "India's Got Latent - S2 Bonus Ep 2",
+  year: "2026",
+  rating: "16+",
+  match: "99% Match",
+  duration: "1h 52m",
+  desc: "The ultimate chaotic talent showdown featuring Badshah, Sourav Joshi, Harsh Limbachiyaa, Rajat Sood, and Samay Raina!",
+  poster: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg",
+  backdrop: "https://i.ytimg.com/vi/eHTXQW58WhA/maxresdefault.jpg",
+  mediaType: "tv",
+  genres: ["Comedy", "Reality", "Talk Show"],
+  grad: "linear-gradient(135deg, #FF1E27 0%, #0d0e10 100%)",
+  videoUrl: "https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1",
+  trailerUrl: "https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1",
+};
+
 const SPIDERMAN_ITEM = {
   id: 969681,
   tmdbId: 969681,
@@ -26,6 +44,7 @@ const SPIDERMAN_ITEM = {
 };
 
 const LATENT_ITEMS = [
+  LATENT_BONUS_EP2,
   {
     id: 999901, tmdbId: 999901, title: "India's Got Latent - EP 1", year: "2026",
     rating: "16+", match: "99% Match", duration: "1h 45m",
@@ -50,7 +69,7 @@ const LATENT_ITEMS = [
 
 const Home = () => {
   const [data, setData] = useState<any>({
-    movies: [SPIDERMAN_ITEM],
+    movies: [LATENT_BONUS_EP2, SPIDERMAN_ITEM],
     action: [],
     tv: [],
     newTv: [],
@@ -99,7 +118,7 @@ const Home = () => {
         }
 
         setData({
-          movies: [SPIDERMAN_ITEM, ...moviesList],
+          movies: [LATENT_BONUS_EP2, SPIDERMAN_ITEM, ...moviesList],
           action: actionList,
           tv: tvList,
           newTv: newTvList,
@@ -136,16 +155,17 @@ const Home = () => {
     >
       <Hero slides={data.movies.slice(0, 5)} />
 
-      <SportsRow />
-
       <div className="rows">
-        <Row title="🔥 Top 10 Today"          items={data.movies.slice(0, 10)} isRanked={true} />
-        <Row title="Trending Movies"           items={data.movies.slice(1, 20)} />
-        <Row title="India's Got Latent 🎤"     items={data.latent} />
+        {/* INDIA'S GOT LATENT AT THE VERY FIRST & TOP ROW */}
+        <Row title="🎤 India's Got Latent (Latest Episodes)" items={data.latent} />
+        <Row title="🔥 Top 10 Today"                        items={data.movies.slice(0, 10)} isRanked={true} />
+        <Row title="Trending Movies"                         items={data.movies.slice(1, 20)} />
         {data.tv.length > 0 && <Row title="Binge-Worthy TV Shows" items={data.tv} />}
         {data.action.length > 0 && <Row title="Action & Thrillers" items={data.action} />}
         {data.newTv.length > 0 && <Row title="Top Rated TV Series" items={data.newTv} />}
       </div>
+
+      <SportsRow />
     </motion.div>
   );
 };
