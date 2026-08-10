@@ -304,8 +304,9 @@ const VideoPlayer = () => {
                   videoRef.current?.play().catch(() => {});
                 }}
                 onError={() => {
-                  // If HTML5 stream encounters any issue, fallback to Server 1 automatically
                   setIsBuffering(false);
+                  setActiveMode('youtube');
+                  setActiveSrc(item?.trailerUrl || `https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1&rel=0`);
                 }}
               />
 
