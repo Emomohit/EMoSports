@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bell, Menu, X, LogOut, Settings, User, Loader2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { contentApi } from '../services/api';
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const { scrollY } = useScroll();
   const { user, logout, activeProfile } = useAppContext();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,8 +18,6 @@ const Navbar = () => {
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useMotionValueEvent(scrollY, 'change', (latest) => setIsScrolled(latest > 50));
 
   // Auto-focus input when search opens
   useEffect(() => {
@@ -65,7 +61,7 @@ const Navbar = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${isScrolled ? 'bg-black/90 backdrop-blur-md border-b border-white/5 shadow-lg' : 'bg-transparent'}`}
+        className="sticky top-0 left-0 right-0 z-50 bg-black/95 border-b border-white/10 backdrop-blur-md shadow-2xl"
       >
         <div className="flex items-center justify-between px-[5%] h-[68px]">
           {/* Left: Logo + Nav Links */}
