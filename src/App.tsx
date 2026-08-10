@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import Loader from './components/Loader';
 import VideoPlayer from './components/VideoPlayer';
 import Modal from './components/Modal';
@@ -40,7 +39,6 @@ function App() {
       <AnimatedRoutes />
       <VideoPlayer />
       <Modal />
-      <Footer />
     </Router>
   );
 }

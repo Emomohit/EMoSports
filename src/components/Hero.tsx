@@ -51,7 +51,7 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
 
   return (
     <div 
-      className="relative h-[94vh] min-h-[620px] overflow-hidden"
+      className="relative h-[68vh] md:h-[75vh] min-h-[480px] overflow-hidden"
       style={{ perspective: 1200 }}
       ref={containerRef}
       onMouseMove={handleMouseMove}
@@ -64,27 +64,27 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 flex items-end px-[5%] pb-[9%]"
+          className="absolute inset-0 flex items-end px-[5%] pb-[6%]"
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Background Layer with Parallax */}
           <motion.div 
-            className="absolute -inset-[8%] bg-cover bg-center filter brightness-110 contrast-110"
+            className="absolute -inset-[4%] bg-cover bg-center filter brightness-110 contrast-105"
             style={{ 
               backgroundImage: `url(${current.backdrop})`,
               x: bgTranslateX,
               y: bgTranslateY,
-              scale: 1.05
+              scale: 1.02
             }}
           />
           
           {/* Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-black/35 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000] via-black/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10" />
 
           {/* Content Layer with 3D Tilt */}
           <motion.div 
-            className="relative z-30 max-w-[600px] text-white"
+            className="relative z-30 max-w-[620px] text-white"
             style={{
               rotateX: contentRotateX,
               rotateY: contentRotateY,
@@ -94,11 +94,11 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
               textShadow: '0 4px 20px rgba(0,0,0,0.8)'
             }}
           >
-            <div className="text-[12.5px] font-semibold text-[#98989d] tracking-widest uppercase mb-4 drop-shadow-md">
+            <div className="text-[12px] font-semibold text-[#98989d] tracking-widest uppercase mb-3 drop-shadow-md">
               emoplay Premium
             </div>
             
-            <h1 className="text-[76px] font-extrabold leading-[1.02] tracking-tighter mb-4 drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-3 drop-shadow-2xl">
               {current.title}
             </h1>
             
