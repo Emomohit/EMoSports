@@ -205,12 +205,12 @@ const VideoPlayer = () => {
         >
 
           {/* Top Bar Header */}
-          <div className="absolute top-0 left-0 right-0 p-4 z-40 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <span className="px-2.5 py-1 bg-[#0a84ff] text-white text-xs font-black rounded-md uppercase tracking-wider">
+          <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 z-40 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#0a84ff] text-white text-[10px] sm:text-xs font-black rounded-md uppercase tracking-wider flex-shrink-0">
                 {activeMode === 'html5' ? 'HD STREAM' : activeMode === 'youtube' ? 'TRAILER' : 'SERVER EMBED'}
               </span>
-              <h3 className="text-white font-bold text-base sm:text-lg drop-shadow truncate max-w-xs sm:max-w-md">
+              <h3 className="text-white font-bold text-sm sm:text-lg drop-shadow truncate max-w-[130px] xs:max-w-[200px] sm:max-w-md">
                 {item?.title}
               </h3>
             </div>

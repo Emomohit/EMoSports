@@ -110,14 +110,14 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
               <span>HD</span>
             </div>
             
-            <p className="text-[16.5px] text-[#e0e0e0] leading-relaxed mb-8 max-w-[500px] font-medium">
+            <p className="text-sm sm:text-[16.5px] text-[#e0e0e0] leading-relaxed mb-5 sm:mb-8 max-w-[500px] font-medium line-clamp-3 md:line-clamp-none">
               {current.desc.length > 150 ? current.desc.substring(0, 150) + '...' : current.desc}
             </p>
             
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => window.dispatchEvent(new CustomEvent('playMedia', { detail: current }))}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-black rounded-full font-bold text-[15px] transition-all duration-300 hover:scale-105 hover:bg-white shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] active:scale-95"
+                className="flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white text-black rounded-full font-bold text-sm sm:text-[15px] transition-all duration-300 hover:scale-105 hover:bg-white shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)] active:scale-95"
               >
                 <Play className="w-4 h-4 fill-black" />
                 Play
@@ -125,7 +125,7 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
               
               <button 
                 onClick={() => window.dispatchEvent(new CustomEvent('openModal', { detail: current }))}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 text-white rounded-full font-bold text-[15px] transition-all duration-300 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:scale-105 hover:border-white/40 shadow-lg active:scale-95"
+                className="flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white/10 text-white rounded-full font-bold text-sm sm:text-[15px] transition-all duration-300 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:scale-105 hover:border-white/40 shadow-lg active:scale-95"
               >
                 <Info className="w-4 h-4" />
                 More Info
@@ -136,7 +136,7 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
       </AnimatePresence>
 
       {/* Dots */}
-      <div className="absolute right-[5%] bottom-[11%] flex gap-2 z-30">
+      <div className="absolute right-4 sm:right-[5%] bottom-4 sm:bottom-[11%] flex gap-2 z-30">
         {slides.map((_, i) => (
           <div 
             key={i}

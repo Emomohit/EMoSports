@@ -96,7 +96,7 @@ const Modal = () => {
             </button>
 
             {/* Hero Backdrop */}
-            <div className="relative h-[340px] sm:h-[400px]">
+            <div className="relative h-[220px] sm:h-[340px] md:h-[400px]">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-opacity duration-500"
                 style={{ backgroundImage: `url(${d.backdrop || d.poster || item.backdrop || item.poster})` }}
@@ -112,8 +112,8 @@ const Modal = () => {
               )}
 
               {/* Title + Meta Overlay */}
-              <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full">
-                <h1 className="text-3xl sm:text-5xl font-black text-white mb-3 leading-tight drop-shadow-2xl">
+              <div className="absolute bottom-0 left-0 p-4 sm:p-6 md:p-8 w-full">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-3 leading-tight drop-shadow-2xl">
                   {d.title || item.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-white/80 mb-5">

@@ -28,7 +28,7 @@ const Card: React.FC<CardProps> = ({ item, rank = 0 }) => {
 
   return (
     <div 
-      className={`relative cursor-pointer transition-all duration-400 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] ${rank > 0 ? 'w-[260px]' : 'w-[260px]'} rounded-xl`}
+      className={`relative cursor-pointer transition-all duration-400 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] ${rank > 0 ? 'w-[165px] sm:w-[210px] md:w-[250px]' : 'w-[155px] sm:w-[190px] md:w-[230px] lg:w-[260px]'} rounded-xl`}
       style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
       onClick={handleInfo}
     >
@@ -44,7 +44,7 @@ const Card: React.FC<CardProps> = ({ item, rank = 0 }) => {
         className="relative group rounded-xl bg-[#222]"
       >
         {rank > 0 && (
-          <div className="absolute -left-5 -bottom-2 text-[120px] font-black leading-none text-black z-20" style={{ WebkitTextStroke: '2px #444' }}>
+          <div className="absolute -left-3 sm:-left-5 -bottom-2 text-[75px] sm:text-[100px] md:text-[120px] font-black leading-none text-black z-20 pointer-events-none select-none" style={{ WebkitTextStroke: '2px #444' }}>
             {rank}
           </div>
         )}
