@@ -204,27 +204,28 @@ const VideoPlayer = () => {
           onMouseMove={resetControlsTimeout}
         >
 
-          {/* Top Bar Header */}
-          <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 z-40 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex justify-between items-center gap-2">
+          {/* Dedicated Top Bar Header — Zero Overlap with Video Touch Area */}
+          <div className="flex-none h-14 bg-[#0d0e10] border-b border-white/10 px-3 sm:px-4 z-50 flex justify-between items-center gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-[#0a84ff] text-white text-[10px] sm:text-xs font-black rounded-md uppercase tracking-wider flex-shrink-0">
                 {activeMode === 'html5' ? 'HD STREAM' : activeMode === 'youtube' ? 'TRAILER' : 'SERVER EMBED'}
               </span>
-              <h3 className="text-white font-bold text-sm sm:text-lg drop-shadow truncate max-w-[130px] xs:max-w-[200px] sm:max-w-md">
+              <h3 className="text-white font-bold text-xs sm:text-base drop-shadow truncate max-w-[140px] xs:max-w-[220px] sm:max-w-md">
                 {item?.title}
               </h3>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Server Menu Button */}
               {servers.length > 0 && (
                 <div className="relative">
                   <button
                     onClick={() => setShowServerMenu(!showServerMenu)}
-                    className="flex items-center gap-2 px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg backdrop-blur border border-white/20 transition-all hover:scale-105"
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white text-[11px] sm:text-xs font-bold rounded-lg backdrop-blur border border-white/20 transition-all active:scale-95"
                   >
                     <Server className="w-3.5 h-3.5 text-[#0a84ff]" />
-                    <span>{servers[selectedServerIndex]?.name || 'Switch Server'}</span>
+                    <span className="hidden xs:inline">{servers[selectedServerIndex]?.name || 'Switch Server'}</span>
+                    <span className="xs:hidden">Server</span>
                   </button>
 
                   <AnimatePresence>
@@ -233,7 +234,7 @@ const VideoPlayer = () => {
                         initial={{ opacity: 0, y: 8, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8 }}
-                        className="absolute right-0 top-full mt-2 w-60 bg-[#111113]/98 backdrop-blur-2xl border border-white/10 rounded-xl p-2 shadow-2xl z-50"
+                        className="absolute right-0 top-full mt-2 w-56 sm:w-60 bg-[#111113]/98 backdrop-blur-2xl border border-white/10 rounded-xl p-2 shadow-2xl z-50"
                       >
                         <p className="text-[#98989d] text-[10px] font-bold uppercase tracking-wider px-2 py-1">Streaming Mirrors</p>
                         {servers.map((s, idx) => (
@@ -270,12 +271,15 @@ const VideoPlayer = () => {
               {/* Close Button */}
               <button
                 onClick={handleClose}
-                className="w-9 h-9 bg-black/60 hover:bg-red-600 rounded-full flex items-center justify-center text-white backdrop-blur transition-all hover:scale-110"
+                className="w-8 h-8 sm:w-9 sm:h-9 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center text-white backdrop-blur transition-all active:scale-95"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
+
+          {/* Main Video Viewport — Full Height Flex Child */}
+          <div className="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden">
 
           {/* ── Mode 1: HTML5 Native Player ── */}
           {activeMode === 'html5' && (
@@ -382,7 +386,7 @@ const VideoPlayer = () => {
 
           {/* ── Mode 2: YouTube Player ── */}
           {activeMode === 'youtube' && (
-            <div className="relative flex-1 w-full h-full pt-12 sm:pt-14 bg-black flex items-center justify-center">
+            <div className="w-full h-full bg-black flex items-center justify-center">
               <iframe
                 src={activeSrc}
                 className="w-full h-full aspect-video sm:aspect-auto border-none"
@@ -395,7 +399,7 @@ const VideoPlayer = () => {
 
           {/* ── Mode 3: Iframe Server Embed ── */}
           {activeMode === 'iframe' && (
-            <div className="relative flex-1 w-full h-full pt-12 sm:pt-14 bg-black flex items-center justify-center">
+            <div className="w-full h-full bg-black flex items-center justify-center">
               <iframe
                 key={activeSrc}
                 src={activeSrc}
@@ -407,6 +411,7 @@ const VideoPlayer = () => {
             </div>
           )}
 
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
