@@ -22,6 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-. e n v  
+.env
+public/videos/
 server/.env
 temp_dl/
