@@ -46,16 +46,43 @@ const Hero: React.FC<HeroProps> = ({ slides }) => {
   const contentTranslateX = useTransform(mouseX, [-1, 1], [-15, 15]);
   const contentTranslateY = useTransform(mouseY, [-1, 1], [-15, 15]);
 
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > 45) {
+      setIndex((prev) => (prev + 1) % slides.length);
+    } else if (distance < -45) {
+      setIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
+
   if (!slides || slides.length === 0) return null;
   const current = slides[index];
 
   return (
     <div 
-      className="relative h-[68vh] md:h-[75vh] min-h-[480px] overflow-hidden"
+      className="relative h-[68vh] md:h-[75vh] min-h-[480px] overflow-hidden select-none touch-pan-y"
       style={{ perspective: 1200 }}
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <AnimatePresence mode="popLayout">
         <motion.div

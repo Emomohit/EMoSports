@@ -382,10 +382,10 @@ const VideoPlayer = () => {
 
           {/* ── Mode 2: YouTube Player ── */}
           {activeMode === 'youtube' && (
-            <div className="w-full h-full pt-14 bg-black">
+            <div className="relative flex-1 w-full h-full pt-12 sm:pt-14 bg-black flex items-center justify-center">
               <iframe
                 src={activeSrc}
-                className="w-full h-full border-none"
+                className="w-full h-full aspect-video sm:aspect-auto border-none"
                 allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                 allowFullScreen
                 title={item?.title}
@@ -395,11 +395,11 @@ const VideoPlayer = () => {
 
           {/* ── Mode 3: Iframe Server Embed ── */}
           {activeMode === 'iframe' && (
-            <div className="w-full h-full pt-14 bg-black">
+            <div className="relative flex-1 w-full h-full pt-12 sm:pt-14 bg-black flex items-center justify-center">
               <iframe
                 key={activeSrc}
                 src={activeSrc}
-                className="w-full h-full border-none"
+                className="w-full h-full aspect-video sm:aspect-auto border-none"
                 allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
                 allowFullScreen
                 title={item?.title}
