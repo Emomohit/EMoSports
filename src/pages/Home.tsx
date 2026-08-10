@@ -21,8 +21,9 @@ const LATENT_BONUS_EP2 = {
   mediaType: "tv",
   genres: ["Comedy", "Reality", "Talk Show"],
   grad: "linear-gradient(135deg, #FF1E27 0%, #0d0e10 100%)",
-  videoUrl: "/videos/latent_bonus_ep2.mp4",
-  trailerUrl: "https://www.youtube.com/embed/eHTXQW58WhA?autoplay=1",
+  videoUrl: "https://www.youtube.com/embed/3VsPXA1X3Ug?autoplay=1",
+  trailerUrl: "https://www.youtube.com/embed/3VsPXA1X3Ug?autoplay=1",
+  trailerKey: "3VsPXA1X3Ug",
 };
 
 const SPIDERMAN_ITEM = {
