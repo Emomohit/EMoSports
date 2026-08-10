@@ -297,7 +297,10 @@ const VideoPlayer = () => {
                 }}
                 onLoadStart={() => setIsBuffering(true)}
                 onWaiting={() => setIsBuffering(true)}
-                onCanPlay={() => setIsBuffering(false)}
+                onCanPlay={() => {
+                  setIsBuffering(false);
+                  videoRef.current?.play().catch(() => {});
+                }}
                 onError={() => {
                   // If HTML5 stream encounters any issue, fallback to Server 1 automatically
                   setIsBuffering(false);
