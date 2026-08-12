@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import Row from '../components/Row';
 import SportsRow from '../components/SportsRow';
+import TournamentBracket from '../components/TournamentBracket';
 import { contentApi } from '../services/api';
 import { fetchMovies, fetchTVShows } from '../services/tmdb';
 
@@ -166,6 +167,7 @@ const Home = () => {
         {data.newTv.length > 0 && <Row title="Top Rated TV Series" items={data.newTv} />}
       </div>
 
+      <TournamentBracket />
       <SportsRow />
     </motion.div>
   );
